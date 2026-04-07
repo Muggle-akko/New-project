@@ -1,0 +1,74 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  buildSidebarTree,
+  formatLongDate,
+  normalizeNoteId,
+} from "../../lib/notes";
+import type { NoteEntry } from "../../lib/notes";
+
+export async function getStaticPaths() {
+  const notes = await getCollection(
+    "notes",
+    ({ data }) => !import.meta.env.PROD || !data.draft,
+  );
+
+  return notes.map((entry) => ({
+    params: { slug: normalizeNoteId(entry.id) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: NoteEntry };
+const notes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const tree = buildSidebarTree(notes);
+const currentNotePath = normalizeNoteId(entry.id);
+const { Content, remarkPluginFrontmatter } = await render(entry);
+const readingTime = Number(remarkPluginFrontmatter?.readingTime ?? 1);
+const folderLabel = currentNotePath.includes("/")
+  ? currentNotePath.split("/").slice(0, -1).join(" / ")
+  : "root";
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description ?? `${entry.data.title} | published from Obsidian`}
+  tree={tree}
+  currentNotePath={currentNotePath}
+>
+  <article>
+    <header class="border-b border-[var(--border)] pb-7">
+      <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">{folderLabel}</p>
+      <h1 class="mt-4 text-4xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-5xl">
+        {entry.data.title}
+      </h1>
+      {entry.data.description && (
+        <p class="mt-5 max-w-3xl text-base leading-8 text-[var(--muted)]">{entry.data.description}</p>
+      )}
+      <div class="mt-6 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
+        <span class="pill">发布于 {formatLongDate(entry.data.date)}</span>
+        {entry.data.updated && <span class="pill">更新于 {formatLongDate(entry.data.updated)}</span>}
+        <span class="pill">{readingTime} min read</span>
+      </div>
+      {
+        entry.data.tags.length > 0 && (
+          <div class="mt-4 flex flex-wrap gap-2">
+            {entry.data.tags.map((tag) => (
+              <span class="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]">#{tag}</span>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="mt-8">
+      <article class="note-prose prose max-w-none prose-headings:font-semibold prose-img:rounded-[1.25rem] prose-img:border prose-img:border-[var(--border)] prose-pre:rounded-[1.25rem] prose-pre:border prose-pre:border-[var(--border)] prose-code:before:content-none prose-code:after:content-none dark:prose-invert">
+        <Content />
+      </article>
+    </div>
+  </article>
+</BaseLayout>

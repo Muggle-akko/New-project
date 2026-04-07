@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  buildSidebarTree,
+  formatLongDate,
+  getRecentNotes,
+  normalizeNoteId,
+  noteUrlFromId,
+} from "../../lib/notes";
+
+const notes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const tree = buildSidebarTree(notes);
+const orderedNotes = getRecentNotes(notes, notes.length);
+---
+
+<BaseLayout title="All Notes" description="Browse every published note." tree={tree}>
+  <section>
+    <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Directory</p>
+    <h1 class="mt-3 text-4xl font-semibold tracking-tight text-[var(--foreground)]">全部笔记</h1>
+    <p class="mt-4 max-w-2xl text-base leading-8 text-[var(--muted)]">
+      URL 和目录结构一一对应，方便长期维护，也方便你继续用 Obsidian 的文件夹方式组织内容。
+    </p>
+  </section>
+
+  <section class="mt-8 space-y-4">
+    {
+      orderedNotes.map((note) => (
+        <a
+          href={noteUrlFromId(note.id)}
+          class="surface-panel block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">{normalizeNoteId(note.id)}</p>
+              <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">{note.data.title}</h2>
+            </div>
+            <time class="pill">{formatLongDate(note.data.date)}</time>
+          </div>
+          {note.data.description && (
+            <p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">{note.data.description}</p>
+          )}
+        </a>
+      ))
+    }
+  </section>
+</BaseLayout>

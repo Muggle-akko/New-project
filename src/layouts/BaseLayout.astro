@@ -1,0 +1,163 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import "../styles/global.css";
+import type { SidebarNode } from "../lib/notes";
+import { SITE } from "../lib/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  tree: SidebarNode[];
+  currentNotePath?: string;
+}
+
+const {
+  title = SITE.title,
+  description = SITE.description,
+  tree,
+  currentNotePath,
+} = Astro.props;
+const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      (() => {
+        const themeKey = "note-theme";
+        const storedTheme = localStorage.getItem(themeKey) ?? "system";
+        const resolvedTheme =
+          storedTheme === "system"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
+            : storedTheme;
+
+        document.documentElement.dataset.theme = storedTheme;
+        document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+        document.documentElement.style.colorScheme = resolvedTheme;
+      })();
+    </script>
+  </head>
+  <body class="antialiased">
+    <div class="pointer-events-none fixed inset-0 overflow-hidden">
+      <div class="absolute -left-20 top-0 h-72 w-72 rounded-full bg-[var(--accent)]/15 blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-400/12 blur-3xl"></div>
+    </div>
+
+    <header class="frost-header sticky top-0 z-30 border-b border-[var(--border)] backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            data-sidebar-toggle
+            class="inline-flex h-10 items-center justify-center rounded-full border border-[var(--border)] px-4 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] lg:hidden"
+          >
+            Ŀ¼
+          </button>
+          <a href="/" class="text-sm uppercase tracking-[0.32em] text-[var(--muted)]">{SITE.title}</a>
+        </div>
+
+        <a
+          href="/notes"
+          class="inline-flex items-center rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--soft)]"
+        >
+          All notes
+        </a>
+      </div>
+    </header>
+
+    <div class="relative mx-auto flex max-w-7xl gap-6 px-4 py-6 lg:px-6">
+      <div data-sidebar-backdrop class="fixed inset-0 z-30 hidden bg-slate-950/45 lg:hidden"></div>
+
+      <aside
+        data-sidebar-panel
+        class="fixed inset-y-0 left-0 z-40 w-[min(86vw,22rem)] -translate-x-full px-4 py-4 transition-transform duration-200 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:w-80 lg:translate-x-0 lg:px-0 lg:py-0"
+      >
+        <Sidebar tree={tree} currentNotePath={currentNotePath} />
+      </aside>
+
+      <main class="min-w-0 flex-1 lg:pl-2">
+        <div class="note-shell rounded-[2rem] px-5 py-6 sm:px-7 sm:py-7 lg:px-10 lg:py-9">
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <script is:inline>
+      const themeKey = "note-theme";
+      const root = document.documentElement;
+      const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+
+      const resolveTheme = (theme) =>
+        theme === "system" ? (colorSchemeMedia.matches ? "dark" : "light") : theme;
+
+      const applyTheme = (theme) => {
+        const resolved = resolveTheme(theme);
+        root.dataset.theme = theme;
+        root.classList.toggle("dark", resolved === "dark");
+        root.style.colorScheme = resolved;
+
+        document.querySelectorAll("[data-theme-option]").forEach((button) => {
+          const isActive = button.dataset.themeOption === theme;
+          button.dataset.active = String(isActive);
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+      };
+
+      const readTheme = () => localStorage.getItem(themeKey) ?? "system";
+
+      document.querySelectorAll("[data-theme-option]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const theme = button.dataset.themeOption ?? "system";
+          localStorage.setItem(themeKey, theme);
+          applyTheme(theme);
+        });
+      });
+
+      colorSchemeMedia.addEventListener("change", () => {
+        if (readTheme() === "system") {
+          applyTheme("system");
+        }
+      });
+
+      applyTheme(readTheme());
+
+      const sidebarPanel = document.querySelector("[data-sidebar-panel]");
+      const sidebarBackdrop = document.querySelector("[data-sidebar-backdrop]");
+
+      const openSidebar = () => {
+        sidebarPanel?.classList.remove("-translate-x-full");
+        sidebarBackdrop?.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      };
+
+      const closeSidebar = () => {
+        sidebarPanel?.classList.add("-translate-x-full");
+        sidebarBackdrop?.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      };
+
+      document.querySelectorAll("[data-sidebar-toggle]").forEach((button) => {
+        button.addEventListener("click", openSidebar);
+      });
+
+      document.querySelectorAll("[data-sidebar-close]").forEach((button) => {
+        button.addEventListener("click", closeSidebar);
+      });
+
+      sidebarBackdrop?.addEventListener("click", closeSidebar);
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1024) {
+          closeSidebar();
+        }
+      });
+    </script>
+  </body>
+</html>

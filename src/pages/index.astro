@@ -1,0 +1,100 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  buildSidebarTree,
+  formatLongDate,
+  getRecentNotes,
+  noteUrlFromId,
+} from "../lib/notes";
+import { SITE } from "../lib/site";
+
+const notes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const tree = buildSidebarTree(notes);
+const recentNotes = getRecentNotes(notes, 6);
+---
+
+<BaseLayout title={SITE.title} description={SITE.description} tree={tree}>
+  <section class="grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
+    <div class="rounded-[1.75rem] border border-[var(--border)] bg-[var(--soft)]/55 p-6 sm:p-8">
+      <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Obsidian → Astro → Vercel</p>
+      <h1 class="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-5xl">
+        用真实文件夹组织笔记，用一个更省心的发布流来读。
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-8 text-[var(--muted)]">
+        这个站点把 <code class="rounded bg-[var(--bg)] px-1.5 py-0.5 text-sm">vault/</code>
+        直接当成内容源，侧边栏保留文件夹树，文章按日期倒序排列，继续用 Obsidian 写作即可。
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a
+          href="/notes"
+          class="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+        >
+          浏览全部笔记
+        </a>
+        <a
+          href="https://vercel.com"
+          target="_blank"
+          rel="noreferrer"
+          class="inline-flex items-center rounded-full border border-[var(--border)] px-5 py-3 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--soft)]"
+        >
+          了解 Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="surface-panel rounded-[1.75rem] p-6">
+      <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Why this stack</p>
+      <div class="mt-4 grid gap-4">
+        <div class="rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg)]/60 p-4">
+          <h2 class="text-lg font-semibold text-[var(--foreground)]">文件夹就是导航</h2>
+          <p class="mt-2 text-sm leading-7 text-[var(--muted)]">不再维护额外导航配置，目录树直接来自 vault 结构。</p>
+        </div>
+        <div class="rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg)]/60 p-4">
+          <h2 class="text-lg font-semibold text-[var(--foreground)]">写完就能发</h2>
+          <p class="mt-2 text-sm leading-7 text-[var(--muted)]">GitHub 负责版本管理，Vercel 负责自动构建和部署。</p>
+        </div>
+        <div class="rounded-[1.25rem] border border-[var(--border)] bg-[var(--bg)]/60 p-4">
+          <h2 class="text-lg font-semibold text-[var(--foreground)]">保留 Obsidian 味道</h2>
+          <p class="mt-2 text-sm leading-7 text-[var(--muted)]">支持 wikilinks、callouts、附件嵌入和阅读时间展示。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-8 rounded-[1.75rem] border border-[var(--border)] bg-[var(--bg)]/50 p-6 sm:p-8">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Recent notes</p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)]">最近发布</h2>
+      </div>
+      <a href="/notes" class="text-sm text-[var(--accent)] transition hover:opacity-80">查看全部 →</a>
+    </div>
+
+    {
+      recentNotes.length ? (
+        <div class="mt-6 divide-y divide-[var(--border)]/80">
+          {recentNotes.map((note) => (
+            <a
+              href={noteUrlFromId(note.id)}
+              class="grid gap-2 py-4 transition hover:translate-x-1 md:grid-cols-[1fr_auto] md:items-center"
+            >
+              <div>
+                <h3 class="text-lg font-semibold text-[var(--foreground)]">{note.data.title}</h3>
+                {note.data.description && (
+                  <p class="mt-2 max-w-2xl text-sm leading-7 text-[var(--muted)]">{note.data.description}</p>
+                )}
+              </div>
+              <time class="text-sm text-[var(--muted)]">{formatLongDate(note.data.date)}</time>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="mt-6 text-sm text-[var(--muted)]">还没有公开笔记。</p>
+      )
+    }
+  </section>
+</BaseLayout>

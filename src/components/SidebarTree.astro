@@ -1,0 +1,57 @@
+---
+import { formatShortDate } from "../lib/notes";
+import type { SidebarNode } from "../lib/notes";
+
+interface Props {
+  nodes: SidebarNode[];
+  currentNotePath?: string;
+  openFolders?: Set<string>;
+  depth?: number;
+}
+
+const {
+  nodes,
+  currentNotePath,
+  openFolders = new Set<string>(),
+  depth = 0,
+} = Astro.props;
+---
+
+<ul class:list={["space-y-1", depth > 0 && "mt-2 border-l border-[var(--border)] pl-3"]}>
+  {
+    nodes.map((node) =>
+      node.kind === "folder" ? (
+        <li>
+          <details open={openFolders.has(node.path)}>
+            <summary class="folder-summary group">
+              <span class="flex items-center gap-2">
+                <span class="folder-dot"></span>
+                {node.name}
+              </span>
+              <span class="folder-chevron">?</span>
+            </summary>
+            <Astro.self
+              nodes={node.children}
+              currentNotePath={currentNotePath}
+              openFolders={openFolders}
+              depth={depth + 1}
+            />
+          </details>
+        </li>
+      ) : (
+        <li>
+          <a
+            class:list={[
+              "sidebar-link",
+              currentNotePath === node.path && "sidebar-link-active",
+            ]}
+            href={node.url}
+          >
+            <span class="min-w-0 truncate">{node.name}</span>
+            <time class="text-xs text-[var(--muted)]">{formatShortDate(node.date)}</time>
+          </a>
+        </li>
+      ),
+    )
+  }
+</ul>
