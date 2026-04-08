@@ -1,0 +1,298 @@
+﻿---
+interface SearchableNote {
+  url: string;
+  path: string;
+  title: string;
+  dateLabel: string;
+  description: string;
+  tags: string[];
+  content: string;
+}
+
+interface Props {
+  notes: SearchableNote[];
+}
+
+const { notes } = Astro.props as Props;
+const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script");
+---
+
+<div class="search-modal hidden" data-search-modal data-state="closed" aria-hidden="true">
+  <button type="button" class="search-modal-backdrop" data-search-close aria-label="关闭搜索"></button>
+
+  <div class="search-modal-shell">
+    <div class="search-modal-stack" data-search-modal-stack>
+      <div class="search-modal-input-rail">
+        <div class="search-modal-input-wrap search-input-wrap">
+          <svg class="search-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+          <input
+            id="global-search-input"
+            type="search"
+            placeholder="搜索标题、路径、标签或正文"
+            autocomplete="off"
+            spellcheck="false"
+            class="search-input search-modal-input w-full"
+            data-search-modal-input
+          />
+          <button
+            type="button"
+            class="search-modal-clear hidden"
+            data-search-modal-clear
+            aria-label="清空搜索"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+      </div>
+
+      <section class="search-modal-results-panel surface-panel hidden" data-search-modal-results-panel>
+        <div class="search-modal-status-row">
+          <p class="text-sm text-[var(--muted)]" data-search-modal-count></p>
+          <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Esc 关闭</p>
+        </div>
+
+        <div class="search-modal-empty hidden" data-search-modal-empty>
+          没有找到匹配的笔记，试试标题、标签、目录名，或正文中的更短关键词。
+        </div>
+
+        <div class="search-modal-results" data-search-modal-results></div>
+      </section>
+    </div>
+  </div>
+
+  <script type="application/json" data-search-modal-source set:html={serializedNotes}></script>
+</div>
+
+<script is:inline>
+  (() => {
+    const CLOSE_DELAY_MS = 240;
+
+    const escapeHtml = (value = "") =>
+      value.replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case '"':
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return char;
+        }
+      });
+
+    const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const tokenize = (value) => Array.from(new Set(value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)));
+    const includesAny = (text, terms) => terms.some((term) => text.includes(term));
+
+    const highlightText = (value, terms) => {
+      const escaped = escapeHtml(value);
+      if (!terms.length) return escaped;
+
+      const pattern = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "gi");
+      return escaped.replace(pattern, '<mark class="search-highlight">$1</mark>');
+    };
+
+    const findSnippet = (note, terms) => {
+      const description = note.description ?? "";
+      const content = note.content ?? "";
+      const descriptionLower = description.toLocaleLowerCase();
+      const contentLower = content.toLocaleLowerCase();
+
+      let source = description;
+      let sourceLower = descriptionLower;
+
+      if (!includesAny(descriptionLower, terms) && includesAny(contentLower, terms)) {
+        source = content;
+        sourceLower = contentLower;
+      }
+
+      if (!source) return "";
+
+      const matchIndex = terms.reduce((current, term) => {
+        const index = sourceLower.indexOf(term);
+        if (index === -1) return current;
+        return current === -1 ? index : Math.min(current, index);
+      }, -1);
+
+      if (matchIndex === -1) {
+        return source.slice(0, 140).trim();
+      }
+
+      const start = Math.max(0, matchIndex - 30);
+      const end = Math.min(source.length, matchIndex + 100);
+      const snippet = source.slice(start, end).trim();
+
+      return `${start > 0 ? "…" : ""}${snippet}${end < source.length ? "…" : ""}`;
+    };
+
+    const renderTags = (tags, terms) => {
+      if (!tags.length) return "";
+
+      return `
+        <div class="mt-4 flex flex-wrap gap-2">
+          ${tags.map((tag) => `<span class="search-tag">#${highlightText(tag, terms)}</span>`).join("")}
+        </div>
+      `;
+    };
+
+    const renderCard = (note, terms) => `
+      <a href="${escapeHtml(note.url)}" class="search-modal-result surface-panel">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">${highlightText(note.path, terms)}</p>
+            <h2 class="mt-2 text-lg font-semibold text-[var(--foreground)]">${highlightText(note.title, terms)}</h2>
+          </div>
+          <time class="pill">${escapeHtml(note.dateLabel)}</time>
+        </div>
+        <p class="mt-4 text-sm leading-7 text-[var(--muted)]">${highlightText(findSnippet(note, terms), terms)}</p>
+        ${renderTags(note.tags, terms)}
+      </a>
+    `;
+
+    document.querySelectorAll("[data-search-modal]").forEach((modal) => {
+      if (modal.dataset.ready === "true") return;
+      modal.dataset.ready = "true";
+
+      const input = modal.querySelector("[data-search-modal-input]");
+      const clear = modal.querySelector("[data-search-modal-clear]");
+      const count = modal.querySelector("[data-search-modal-count]");
+      const empty = modal.querySelector("[data-search-modal-empty]");
+      const results = modal.querySelector("[data-search-modal-results]");
+      const resultsPanel = modal.querySelector("[data-search-modal-results-panel]");
+      const source = modal.querySelector("[data-search-modal-source]");
+      const stack = modal.querySelector("[data-search-modal-stack]");
+      const closers = modal.querySelectorAll("[data-search-close]");
+      const openers = document.querySelectorAll("[data-search-open]");
+
+      if (!(input instanceof HTMLInputElement) || !(clear instanceof HTMLButtonElement) || !count || !empty || !results || !resultsPanel || !source || !stack) {
+        return;
+      }
+
+      let closeTimer = undefined;
+
+      const setBodyScrollLock = (locked) => {
+        if (locked) {
+          const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+          document.body.style.paddingRight = `${scrollbarWidth}px`;
+          document.body.classList.add("search-modal-open");
+          return;
+        }
+
+        document.body.style.paddingRight = "";
+        document.body.classList.remove("search-modal-open");
+      };
+
+      const notes = JSON.parse(source.textContent ?? "[]").map((note) => ({
+        ...note,
+        description: note.description ?? "",
+        content: note.content ?? "",
+        tags: Array.isArray(note.tags) ? note.tags : [],
+        searchText: [note.title, note.path, note.description, (note.tags ?? []).join(" "), note.content]
+          .join(" ")
+          .toLocaleLowerCase(),
+      }));
+
+      const render = (query = "") => {
+        const normalizedQuery = query.trim();
+        const terms = tokenize(normalizedQuery);
+        clear.classList.toggle("hidden", !normalizedQuery);
+
+        if (!terms.length) {
+          resultsPanel.classList.add("hidden");
+          results.innerHTML = "";
+          empty.classList.add("hidden");
+          count.textContent = "";
+          return;
+        }
+
+        const matched = notes.filter((note) => terms.every((term) => note.searchText.includes(term)));
+        resultsPanel.classList.remove("hidden");
+        results.innerHTML = matched.map((note) => renderCard(note, terms)).join("");
+        empty.classList.toggle("hidden", matched.length !== 0);
+        count.textContent = matched.length ? `找到 ${matched.length} 篇相关笔记` : "没有找到相关笔记";
+      };
+
+      const finishClose = () => {
+        modal.classList.add("hidden");
+        modal.dataset.state = "closed";
+        modal.setAttribute("aria-hidden", "true");
+        setBodyScrollLock(false);
+      };
+
+      const openModal = () => {
+        if (closeTimer) {
+          window.clearTimeout(closeTimer);
+          closeTimer = undefined;
+        }
+
+        if (!modal.classList.contains("hidden") && modal.dataset.state === "open") {
+          input.focus();
+          return;
+        }
+
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+        setBodyScrollLock(true);
+        modal.dataset.state = "opening";
+
+        window.requestAnimationFrame(() => {
+          modal.dataset.state = "open";
+          input.focus();
+          input.select();
+          render(input.value);
+        });
+      };
+
+      const closeModal = () => {
+        if (modal.classList.contains("hidden") || modal.dataset.state === "closing") {
+          return;
+        }
+
+        modal.dataset.state = "closing";
+        closeTimer = window.setTimeout(() => {
+          finishClose();
+          closeTimer = undefined;
+        }, CLOSE_DELAY_MS);
+      };
+
+      openers.forEach((opener) => {
+        opener.addEventListener("click", openModal);
+      });
+
+      closers.forEach((closer) => {
+        closer.addEventListener("click", closeModal);
+      });
+
+      modal.addEventListener("pointerdown", (event) => {
+        const target = event.target;
+        if (!(target instanceof Node)) return;
+        if (!stack.contains(target)) {
+          closeModal();
+        }
+      });
+
+      input.addEventListener("input", () => {
+        render(input.value);
+      });
+
+      clear.addEventListener("click", () => {
+        input.value = "";
+        render("");
+        input.focus();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+          closeModal();
+        }
+      });
+    });
+  })();
+</script>
+
+

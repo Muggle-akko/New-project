@@ -1,6 +1,9 @@
----
+﻿---
+import { getCollection } from "astro:content";
+import SearchOverlay from "../components/SearchOverlay.astro";
 import Sidebar from "../components/Sidebar.astro";
 import "../styles/global.css";
+import { buildSearchableNotes } from "../lib/notes";
 import type { SidebarNode } from "../lib/notes";
 import { SITE } from "../lib/site";
 
@@ -18,6 +21,11 @@ const {
   currentNotePath,
 } = Astro.props;
 const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
+const allNotes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const searchNotes = buildSearchableNotes(allNotes);
 ---
 
 <!doctype html>
@@ -39,11 +47,6 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
     </script>
   </head>
   <body class="antialiased">
-    <div class="pointer-events-none fixed inset-0 overflow-hidden">
-      <div class="absolute -left-20 top-0 h-72 w-72 rounded-full bg-[var(--accent)]/15 blur-3xl"></div>
-      <div class="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-400/12 blur-3xl"></div>
-    </div>
-
     <header class="frost-header sticky top-0 z-30 border-b border-[var(--border)] backdrop-blur-xl">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
         <div class="flex items-center gap-3">
@@ -52,7 +55,7 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
             data-sidebar-toggle
             class="inline-flex h-10 items-center justify-center rounded-full border border-[var(--border)] px-4 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] lg:hidden"
           >
-            &#30446;&#24405;
+            目录
           </button>
           <a href="/" class="text-sm uppercase tracking-[0.32em] text-[var(--muted)]">{SITE.title}</a>
         </div>
@@ -61,7 +64,7 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
           href="/notes"
           class="inline-flex items-center rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--soft)]"
         >
-          &#20840;&#37096;&#31508;&#35760;
+          全部笔记
         </a>
       </div>
     </header>
@@ -83,6 +86,8 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
       </main>
     </div>
 
+    <SearchOverlay notes={searchNotes} />
+
     <script is:inline>
       const themeKey = "note-theme";
       const root = document.documentElement;
@@ -96,7 +101,7 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
         themeToggle?.setAttribute("aria-pressed", String(theme === "dark"));
         themeToggle?.setAttribute(
           "title",
-          theme === "dark" ? "\u5207\u6362\u5230\u660e\u4eae\u6a21\u5f0f" : "\u5207\u6362\u5230\u6df1\u8272\u6a21\u5f0f",
+          theme === "dark" ? "切换到明亮模式" : "切换到深色模式",
         );
       };
 
@@ -122,7 +127,9 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
       const closeSidebar = () => {
         sidebarPanel?.classList.add("-translate-x-full");
         sidebarBackdrop?.classList.add("hidden");
-        document.body.classList.remove("overflow-hidden");
+        if (!document.body.classList.contains("search-modal-open")) {
+          document.body.classList.remove("overflow-hidden");
+        }
       };
 
       document.querySelectorAll("[data-sidebar-toggle]").forEach((button) => {
@@ -131,6 +138,12 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
 
       document.querySelectorAll("[data-sidebar-close]").forEach((button) => {
         button.addEventListener("click", closeSidebar);
+      });
+
+      document.querySelectorAll("[data-search-open]").forEach((button) => {
+        button.addEventListener("click", () => {
+          closeSidebar();
+        });
       });
 
       sidebarBackdrop?.addEventListener("click", closeSidebar);

@@ -1,0 +1,254 @@
+﻿---
+interface SearchableNote {
+  url: string;
+  path: string;
+  title: string;
+  dateLabel: string;
+  description: string;
+  tags: string[];
+  content: string;
+}
+
+interface Props {
+  notes: SearchableNote[];
+}
+
+const { notes } = Astro.props as Props;
+const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script");
+---
+
+<section class="mt-8 space-y-4" data-note-search>
+  <div class="surface-panel search-panel rounded-[1.5rem] p-4 sm:p-5">
+    <label for="note-search-input" class="search-label">搜索笔记</label>
+    <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="search-input-wrap flex-1">
+        <input
+          id="note-search-input"
+          type="search"
+          placeholder="输入分类、标题、或正文关键词"
+          autocomplete="off"
+          spellcheck="false"
+          class="search-input w-full"
+          data-search-input
+        />
+      </div>
+      <button type="button" class="search-clear hidden" data-search-clear>清空</button>
+    </div>
+    <p class="mt-3 text-sm text-[var(--muted)]" data-search-count>共 {notes.length} 篇笔记</p>
+  </div>
+
+  <div
+    class="search-empty surface-panel hidden rounded-[1.5rem] px-5 py-6 text-sm leading-7 text-[var(--muted)]"
+    data-search-empty
+  >
+    没有找到匹配的笔记，试试更短的关键词，或换成标题、路径、标签里的词。
+  </div>
+
+  <div class="space-y-4" data-search-list>
+    {
+      notes.map((note) => (
+        <a
+          href={note.url}
+          class="surface-panel note-search-card block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">{note.path}</p>
+              <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">{note.title}</h2>
+            </div>
+            <time class="pill">{note.dateLabel}</time>
+          </div>
+          {note.description && (
+            <p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">{note.description}</p>
+          )}
+          {
+            note.tags.length > 0 && (
+              <div class="mt-4 flex flex-wrap gap-2">
+                {note.tags.map((tag) => <span class="search-tag">#{tag}</span>)}
+              </div>
+            )
+          }
+        </a>
+      ))
+    }
+  </div>
+
+  <script type="application/json" data-search-source set:html={serializedNotes}></script>
+</section>
+
+<script is:inline>
+  (() => {
+    const escapeHtml = (value = "") =>
+      value.replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case '"':
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return char;
+        }
+      });
+
+    const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const tokenize = (value) =>
+      Array.from(new Set(value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)));
+    const includesAny = (text, terms) => terms.some((term) => text.includes(term));
+
+    const highlightText = (value, terms) => {
+      const escaped = escapeHtml(value);
+      if (!terms.length) return escaped;
+
+      const pattern = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "gi");
+      return escaped.replace(pattern, '<mark class="search-highlight">$1</mark>');
+    };
+
+    const findSnippet = (note, terms) => {
+      const description = note.description ?? "";
+      const content = note.content ?? "";
+      const descriptionLower = description.toLocaleLowerCase();
+      const contentLower = content.toLocaleLowerCase();
+
+      let source = description;
+      let sourceLower = descriptionLower;
+
+      if (!includesAny(descriptionLower, terms) && includesAny(contentLower, terms)) {
+        source = content;
+        sourceLower = contentLower;
+      }
+
+      if (!source) return "";
+
+      const matchIndex = terms.reduce((current, term) => {
+        const index = sourceLower.indexOf(term);
+        if (index === -1) return current;
+        return current === -1 ? index : Math.min(current, index);
+      }, -1);
+
+      if (matchIndex === -1) {
+        return source.slice(0, 120).trim();
+      }
+
+      const start = Math.max(0, matchIndex - 28);
+      const end = Math.min(source.length, matchIndex + 92);
+      const snippet = source.slice(start, end).trim();
+
+      return `${start > 0 ? "…" : ""}${snippet}${end < source.length ? "…" : ""}`;
+    };
+
+    const renderTags = (tags, terms) => {
+      if (!tags.length) return "";
+
+      return `
+        <div class="mt-4 flex flex-wrap gap-2">
+          ${tags
+            .map((tag) => `<span class="search-tag">#${highlightText(tag, terms)}</span>`)
+            .join("")}
+        </div>
+      `;
+    };
+
+    const renderCard = (note, terms) => {
+      const snippet = terms.length ? findSnippet(note, terms) : note.description;
+
+      return `
+        <a
+          href="${escapeHtml(note.url)}"
+          class="surface-panel note-search-card block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">${highlightText(note.path, terms)}</p>
+              <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">${highlightText(note.title, terms)}</h2>
+            </div>
+            <time class="pill">${escapeHtml(note.dateLabel)}</time>
+          </div>
+          ${snippet ? `<p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">${highlightText(snippet, terms)}</p>` : ""}
+          ${renderTags(note.tags, terms)}
+        </a>
+      `;
+    };
+
+    document.querySelectorAll("[data-note-search]").forEach((container) => {
+      if (container.dataset.ready === "true") return;
+      container.dataset.ready = "true";
+
+      const input = container.querySelector("[data-search-input]");
+      const clear = container.querySelector("[data-search-clear]");
+      const count = container.querySelector("[data-search-count]");
+      const list = container.querySelector("[data-search-list]");
+      const empty = container.querySelector("[data-search-empty]");
+      const source = container.querySelector("[data-search-source]");
+
+      if (!(input instanceof HTMLInputElement) || !(clear instanceof HTMLButtonElement) || !count || !list || !empty || !source) {
+        return;
+      }
+
+      const initialMarkup = list.innerHTML;
+      const notes = JSON.parse(source.textContent ?? "[]").map((note) => ({
+        ...note,
+        description: note.description ?? "",
+        content: note.content ?? "",
+        tags: Array.isArray(note.tags) ? note.tags : [],
+        searchText: [note.title, note.path, note.description, (note.tags ?? []).join(" "), note.content]
+          .join(" ")
+          .toLocaleLowerCase(),
+      }));
+
+      const syncUrl = (query) => {
+        const url = new URL(window.location.href);
+        if (query) {
+          url.searchParams.set("q", query);
+        } else {
+          url.searchParams.delete("q");
+        }
+        window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      };
+
+      const render = (query, { updateUrl = true } = {}) => {
+        const normalizedQuery = query.trim();
+        const terms = tokenize(normalizedQuery);
+
+        clear.classList.toggle("hidden", !normalizedQuery);
+
+        if (!terms.length) {
+          list.innerHTML = initialMarkup;
+          empty.classList.add("hidden");
+          count.textContent = `共 ${notes.length} 篇笔记`;
+          if (updateUrl) syncUrl("");
+          return;
+        }
+
+        const results = notes.filter((note) => terms.every((term) => note.searchText.includes(term)));
+
+        list.innerHTML = results.map((note) => renderCard(note, terms)).join("");
+        empty.classList.toggle("hidden", results.length !== 0);
+        count.textContent = results.length ? `找到 ${results.length} 篇相关笔记` : "没有找到相关笔记";
+
+        if (updateUrl) syncUrl(normalizedQuery);
+      };
+
+      input.addEventListener("input", () => {
+        render(input.value);
+      });
+
+      clear.addEventListener("click", () => {
+        input.value = "";
+        render("");
+        input.focus();
+      });
+
+      const initialQuery = new URLSearchParams(window.location.search).get("q") ?? "";
+      if (initialQuery.trim()) {
+        input.value = initialQuery;
+        render(initialQuery, { updateUrl: false });
+      }
+    });
+  })();
+</script>

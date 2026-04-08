@@ -1,4 +1,4 @@
----
+﻿---
 import ThemeToggle from "./ThemeToggle.astro";
 import SidebarTree from "./SidebarTree.astro";
 import { getOpenFolderPaths } from "../lib/notes";
@@ -33,6 +33,15 @@ const openFolders = getOpenFolderPaths(currentNotePath);
     </button>
   </div>
 
+  <button type="button" class="sidebar-search-trigger text-left" data-search-open aria-label="打开搜索">
+    <span class="search-input-wrap sidebar-search-wrap block">
+      <svg class="search-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+      <span class="search-input sidebar-search-input sidebar-search-faux flex w-full items-center text-[var(--muted)]">
+        探索
+      </span>
+    </span>
+  </button>
+
   <ThemeToggle />
 
   <nav class="min-h-0 flex-1 overflow-y-auto pr-1">
@@ -48,3 +57,5 @@ const openFolders = getOpenFolderPaths(currentNotePath);
     }
   </nav>
 </div>
+
+

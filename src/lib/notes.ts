@@ -1,4 +1,4 @@
-import type { CollectionEntry } from "astro:content";
+﻿import type { CollectionEntry } from "astro:content";
 
 export type NoteEntry = CollectionEntry<"notes">;
 type DateValue = Date | string | undefined;
@@ -19,6 +19,16 @@ export type SidebarNoteNode = {
 };
 
 export type SidebarNode = SidebarFolderNode | SidebarNoteNode;
+
+export type SearchableNote = {
+  url: string;
+  path: string;
+  title: string;
+  dateLabel: string;
+  description: string;
+  tags: string[];
+  content: string;
+};
 
 function compareText(a: string, b: string) {
   return a.localeCompare(b, "zh-CN", {
@@ -207,4 +217,33 @@ export function formatShortDate(value: DateValue) {
     month: "numeric",
     day: "numeric",
   }).format(date);
+}
+
+export function extractSearchText(markdown: string) {
+  return markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\[\[([^[\]|]+)\|([^[\]]+)\]\]/g, "$2")
+    .replace(/\[\[([^[\]]+)\]\]/g, "$1")
+    .replace(/^>\s?/gm, "")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_~>#-]/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function buildSearchableNotes(entries: NoteEntry[]): SearchableNote[] {
+  return getRecentNotes(entries, entries.length).map((note) => ({
+    url: noteUrlFromId(note.id),
+    path: normalizeNoteId(note.id),
+    title: getNoteTitle(note),
+    dateLabel: formatLongDate(note.data.date),
+    description: note.data.description ?? "",
+    tags: note.data.tags ?? [],
+    content: extractSearchText(note.body ?? ""),
+  }));
 }
