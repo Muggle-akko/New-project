@@ -40,6 +40,7 @@ const searchNotes = buildSearchableNotes(allNotes);
         const themeKey = "note-theme";
         const storedTheme = localStorage.getItem(themeKey) ?? "light";
 
+        document.documentElement.classList.add("js");
         document.documentElement.dataset.theme = storedTheme;
         document.documentElement.classList.toggle("dark", storedTheme === "dark");
         document.documentElement.style.colorScheme = storedTheme;
@@ -69,18 +70,18 @@ const searchNotes = buildSearchableNotes(allNotes);
       </div>
     </header>
 
-    <div class="relative mx-auto flex max-w-7xl gap-6 px-4 py-6 lg:px-6">
+    <div class="relative mx-auto flex max-w-7xl gap-6 px-4 py-6 lg:grid lg:max-w-[96rem] lg:grid-cols-[minmax(0,14rem)_minmax(0,58rem)_minmax(0,14rem)] lg:items-start lg:gap-5 lg:px-6">
       <div data-sidebar-backdrop class="fixed inset-0 z-30 hidden bg-slate-950/45 lg:hidden"></div>
 
       <aside
         data-sidebar-panel
-        class="fixed inset-y-0 left-0 z-40 w-[min(86vw,22rem)] -translate-x-full px-4 py-4 transition-transform duration-200 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:w-80 lg:translate-x-0 lg:px-0 lg:py-0"
+        class="fixed inset-y-0 left-0 z-40 w-[min(86vw,22rem)] -translate-x-full px-0 py-0 transition-transform duration-200 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:w-full lg:translate-x-0 lg:px-0 lg:py-0"
       >
         <Sidebar tree={tree} currentNotePath={currentNotePath} />
       </aside>
 
-      <main class="min-w-0 flex-1 lg:pl-2">
-        <div class="note-shell rounded-[2rem] px-5 py-6 sm:px-7 sm:py-7 lg:px-10 lg:py-9">
+      <main class="min-w-0 flex-1 lg:col-start-2 lg:pl-0">
+        <div class="note-shell page-content px-0 py-2 sm:px-0 sm:py-3 lg:rounded-[2rem] lg:px-10 lg:py-9">
           <slot />
         </div>
       </main>
@@ -115,6 +116,21 @@ const searchNotes = buildSearchableNotes(allNotes);
 
       applyTheme(readTheme());
 
+      const playPageEnter = () => {
+        window.setTimeout(() => {
+          document.querySelectorAll(".page-content").forEach((content) => {
+            content.classList.remove("page-content-exit");
+            content.classList.add("page-content-ready");
+          });
+        }, 80);
+      };
+
+      playPageEnter();
+      window.addEventListener("pageshow", (event) => {
+        if (event.persisted) playPageEnter();
+      });
+      document.addEventListener("astro:page-load", playPageEnter);
+
       const sidebarPanel = document.querySelector("[data-sidebar-panel]");
       const sidebarBackdrop = document.querySelector("[data-sidebar-backdrop]");
 
@@ -138,6 +154,34 @@ const searchNotes = buildSearchableNotes(allNotes);
 
       document.querySelectorAll("[data-sidebar-close]").forEach((button) => {
         button.addEventListener("click", closeSidebar);
+      });
+
+      document.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+
+        const link = event.target?.closest?.('a[href]');
+        if (!link || link.target || link.hasAttribute("download")) {
+          return;
+        }
+
+        const url = new URL(link.href, window.location.href);
+        const isSamePageHash = url.pathname === window.location.pathname && url.hash;
+        const isNoteLink = url.origin === window.location.origin && url.pathname.startsWith("/notes/");
+        if (!isNoteLink || isSamePageHash) {
+          return;
+        }
+
+        event.preventDefault();
+        if (window.innerWidth < 1024 && link.matches("[data-sidebar-link]")) {
+          closeSidebar();
+        }
+
+        document.querySelector(".page-content")?.classList.add("page-content-exit");
+        window.setTimeout(() => {
+          window.location.href = url.href;
+        }, 190);
       });
 
       document.querySelectorAll("[data-search-open]").forEach((button) => {

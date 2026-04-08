@@ -34,14 +34,7 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
             class="search-input search-modal-input w-full"
             data-search-modal-input
           />
-          <button
-            type="button"
-            class="search-modal-clear hidden"
-            data-search-modal-clear
-            aria-label="清空搜索"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
+
         </div>
       </div>
 
@@ -159,7 +152,6 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
       modal.dataset.ready = "true";
 
       const input = modal.querySelector("[data-search-modal-input]");
-      const clear = modal.querySelector("[data-search-modal-clear]");
       const count = modal.querySelector("[data-search-modal-count]");
       const empty = modal.querySelector("[data-search-modal-empty]");
       const results = modal.querySelector("[data-search-modal-results]");
@@ -169,7 +161,7 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
       const closers = modal.querySelectorAll("[data-search-close]");
       const openers = document.querySelectorAll("[data-search-open]");
 
-      if (!(input instanceof HTMLInputElement) || !(clear instanceof HTMLButtonElement) || !count || !empty || !results || !resultsPanel || !source || !stack) {
+      if (!(input instanceof HTMLInputElement) || !count || !empty || !results || !resultsPanel || !source || !stack) {
         return;
       }
 
@@ -200,8 +192,6 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
       const render = (query = "") => {
         const normalizedQuery = query.trim();
         const terms = tokenize(normalizedQuery);
-        clear.classList.toggle("hidden", !normalizedQuery);
-
         if (!terms.length) {
           resultsPanel.classList.add("hidden");
           results.innerHTML = "";
@@ -278,12 +268,6 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
 
       input.addEventListener("input", () => {
         render(input.value);
-      });
-
-      clear.addEventListener("click", () => {
-        input.value = "";
-        render("");
-        input.focus();
       });
 
       document.addEventListener("keydown", (event) => {
