@@ -1,4 +1,4 @@
-﻿import type { CollectionEntry } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 export type NoteEntry = CollectionEntry<"notes">;
 type DateValue = Date | string | undefined;
@@ -43,6 +43,10 @@ function compareDatesDesc(a: DateValue, b: DateValue) {
     (toDate(a)?.getTime() ?? Number.NEGATIVE_INFINITY);
 }
 
+function compareNotes(a: NoteEntry, b: NoteEntry) {
+  return compareDatesDesc(a.data.date, b.data.date) || compareText(getNoteTitle(a), getNoteTitle(b));
+}
+
 export function normalizeNoteId(id: string) {
   return id.replace(/\\/g, "/").replace(/\.(md|markdown)$/i, "");
 }
@@ -66,6 +70,17 @@ export function getNoteTitle(note: Pick<NoteEntry, "id" | "data"> | string) {
 
   const fallback = normalizeNoteId(id).split("/").pop() ?? "Untitled";
   return fallback.replace(/[-_]/g, " ");
+}
+
+export function getNoteFolderPath(id: string) {
+  const parts = normalizeNoteId(id).split("/");
+  parts.pop();
+  return parts.join("/");
+}
+
+export function getNoteFolderLabel(id: string) {
+  const folderPath = getNoteFolderPath(id);
+  return folderPath || "顶层";
 }
 
 export function buildSidebarTree(entries: NoteEntry[]) {
@@ -156,12 +171,27 @@ export function getOpenFolderPaths(currentNotePath?: string) {
 
 export function getRecentNotes(entries: NoteEntry[], limit = 6) {
   return [...entries]
-    .sort(
-      (a, b) =>
-        compareDatesDesc(a.data.date, b.data.date) ||
-        compareText(getNoteTitle(a), getNoteTitle(b)),
-    )
+    .sort(compareNotes)
     .slice(0, limit);
+}
+
+export function getFolderNotes(entries: NoteEntry[], id: string) {
+  const folderPath = getNoteFolderPath(id);
+
+  return entries
+    .filter((entry) => getNoteFolderPath(entry.id) === folderPath)
+    .sort(compareNotes);
+}
+
+export function getSiblingNotes(entries: NoteEntry[], id: string) {
+  const folderNotes = getFolderNotes(entries, id);
+  const currentPath = normalizeNoteId(id);
+  const index = folderNotes.findIndex((entry) => normalizeNoteId(entry.id) === currentPath);
+
+  return {
+    previous: index > 0 ? folderNotes[index - 1] : undefined,
+    next: index >= 0 && index < folderNotes.length - 1 ? folderNotes[index + 1] : undefined,
+  };
 }
 
 export function formatLongDate(value: DateValue) {

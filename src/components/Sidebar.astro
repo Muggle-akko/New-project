@@ -1,4 +1,4 @@
-﻿---
+---
 import ThemeToggle from "./ThemeToggle.astro";
 import SidebarTree from "./SidebarTree.astro";
 import { getOpenFolderPaths } from "../lib/notes";
@@ -14,7 +14,7 @@ const { tree, currentNotePath } = Astro.props;
 const openFolders = getOpenFolderPaths(currentNotePath);
 ---
 
-<div class="surface-panel flex h-full flex-col gap-6 rounded-[2rem] p-5">
+<div class="sidebar-shell flex h-full flex-col gap-6 p-2 lg:p-0">
   <div class="flex items-start justify-between gap-4">
     <div>
       <p class="text-xs uppercase tracking-[0.32em] text-[var(--muted)]">目录</p>
@@ -26,7 +26,7 @@ const openFolders = getOpenFolderPaths(currentNotePath);
     <button
       type="button"
       data-sidebar-close
-      class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] text-sm text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)] lg:hidden"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm text-[var(--muted)] transition hover:bg-[var(--soft)] hover:text-[var(--foreground)] lg:hidden"
       aria-label="关闭目录"
     >
       ×
@@ -40,8 +40,8 @@ const openFolders = getOpenFolderPaths(currentNotePath);
       tree.length ? (
         <SidebarTree nodes={tree} currentNotePath={currentNotePath} openFolders={openFolders} />
       ) : (
-        <p class="rounded-2xl border border-dashed border-[var(--border)] px-4 py-5 text-sm text-[var(--muted)]">
-          在 <code class="rounded bg-[var(--bg)] px-1.5 py-0.5 text-xs">vault/</code>
+        <p class="px-2 py-4 text-sm leading-7 text-[var(--muted)]">
+          在 <code class="rounded bg-[var(--soft)] px-1.5 py-0.5 text-xs">vault/</code>
           新建第一篇笔记后，这里会自动生成目录树。
         </p>
       )

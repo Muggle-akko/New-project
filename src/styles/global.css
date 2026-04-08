@@ -100,6 +100,18 @@ code {
     box-shadow 240ms ease;
 }
 
+.sidebar-shell {
+  background: transparent;
+}
+
+@media (max-width: 1023px) {
+  .sidebar-shell {
+    min-height: 100%;
+    border-right: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(18px);
+  }
+}
 .note-shell {
   background: var(--panel-strong);
   border: 1px solid var(--border);
@@ -273,7 +285,7 @@ code {
   width: 0.55rem;
   border-radius: 999px;
   background: var(--accent);
-  opacity: 0.75;
+  opacity: 0.82;
 }
 
 .folder-chevron {

@@ -1,11 +1,14 @@
-﻿---
+---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import {
   buildSidebarTree,
   formatLongDate,
+  getNoteFolderLabel,
   getNoteTitle,
+  getSiblingNotes,
   normalizeNoteId,
+  noteUrlFromId,
 } from "../../lib/notes";
 import type { NoteEntry } from "../../lib/notes";
 
@@ -31,10 +34,9 @@ const currentNotePath = normalizeNoteId(entry.id);
 const pageTitle = getNoteTitle(entry);
 const { Content, remarkPluginFrontmatter } = await render(entry);
 const readingTime = Number(remarkPluginFrontmatter?.readingTime ?? 1);
-const folderLabel = currentNotePath.includes("/")
-  ? currentNotePath.split("/").slice(0, -1).join(" / ")
-  : "顶层";
+const folderLabel = currentNotePath.includes("/") ? currentNotePath.split("/").slice(0, -1).join(" / ") : "顶层";
 const tags = entry.data.tags ?? [];
+const { previous, next } = getSiblingNotes(notes, entry.id);
 ---
 
 <BaseLayout
@@ -73,5 +75,37 @@ const tags = entry.data.tags ?? [];
         <Content />
       </article>
     </div>
+
+    {
+      (previous || next) && (
+        <nav class="mt-10 grid gap-4 border-t border-[var(--border)] pt-8 md:grid-cols-2">
+          {previous ? (
+            <a
+              href={noteUrlFromId(previous.id)}
+              class="surface-panel block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
+            >
+              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">上一篇</p>
+              <h2 class="mt-3 text-lg font-semibold text-[var(--foreground)]">{getNoteTitle(previous)}</h2>
+              <p class="mt-2 text-sm text-[var(--muted)]">{formatLongDate(previous.data.date)}</p>
+            </a>
+          ) : (
+            <div class="hidden md:block"></div>
+          )}
+
+          {next ? (
+            <a
+              href={noteUrlFromId(next.id)}
+              class="surface-panel block rounded-[1.5rem] p-5 text-left transition hover:-translate-y-0.5 md:text-right"
+            >
+              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">下一篇</p>
+              <h2 class="mt-3 text-lg font-semibold text-[var(--foreground)]">{getNoteTitle(next)}</h2>
+              <p class="mt-2 text-sm text-[var(--muted)]">{formatLongDate(next.data.date)}</p>
+            </a>
+          ) : (
+            <div class="hidden md:block"></div>
+          )}
+        </nav>
+      )
+    }
   </article>
 </BaseLayout>
