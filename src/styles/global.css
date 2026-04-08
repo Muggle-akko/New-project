@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -508,6 +508,11 @@ body {
 
 .search-empty {
   text-wrap: balance;
+}
+
+.note-search-card {
+  min-height: 10.5rem;
+  padding: 1.5rem;
 }
 
 .search-glyph {
