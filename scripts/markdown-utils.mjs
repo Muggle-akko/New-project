@@ -279,20 +279,27 @@ export function createVaultResolver(vaultRootUrl) {
   };
 }
 
+function countReadableUnits(value) {
+  const cjkChars = value.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const nonCjkText = value.replace(/\p{Script=Han}/gu, " ");
+  const words = nonCjkText.match(/[\p{Letter}\p{Number}]+(?:['’.-][\p{Letter}\p{Number}]+)*/gu)?.length ?? 0;
+
+  return words + cjkChars / 2;
+}
+
 export function remarkReadingTime() {
   return (tree, file) => {
-    let wordCount = 0;
+    let readableUnits = 0;
 
     visit(tree, "text", (node, _index, parent) => {
       if (parent && EXCLUDED_PARENT_TYPES.has(parent.type)) {
         return;
       }
 
-      const words = node.value.trim().split(/\s+/u).filter(Boolean).length;
-      wordCount += words;
+      readableUnits += countReadableUnits(node.value);
     });
 
-    const readingTime = Math.max(1, Math.ceil(wordCount / 220));
+    const readingTime = Math.max(1, Math.ceil(readableUnits / 220));
     file.data.astro ??= {};
     file.data.astro.frontmatter ??= {};
     file.data.astro.frontmatter.readingTime = readingTime;

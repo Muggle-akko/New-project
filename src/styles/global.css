@@ -515,6 +515,200 @@ body {
   padding: 1.5rem;
 }
 
+.time-tree-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(5.8rem, 6.8rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+.time-tree-items {
+  display: grid;
+  grid-column: 1;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.time-tree-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.8rem;
+  gap: 1rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.time-tree-anchor {
+  position: absolute;
+  top: -6rem;
+}
+
+.time-tree-card {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.time-tree-date {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  padding-top: 1.35rem;
+  color: var(--muted);
+  line-height: 1;
+  text-align: right;
+}
+
+.time-tree-date-month {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.time-tree-date-day {
+  color: var(--foreground);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.time-tree-rail {
+  position: sticky;
+  top: 5.25rem;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-radius: 1.25rem;
+  padding: 1rem 0.9rem;
+  background: color-mix(in srgb, var(--panel-strong) 72%, transparent);
+}
+
+.time-tree-current-year,
+.time-tree-current-month,
+.time-tree-year-link {
+  display: block;
+  border-radius: 0.75rem;
+  color: var(--muted);
+  text-align: right;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.time-tree-current-year {
+  color: var(--foreground);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.time-tree-current-month {
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.time-tree-year-links {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.time-tree-year-link {
+  padding: 0.42rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.time-tree-current-year:hover,
+.time-tree-current-month:hover,
+.time-tree-year-link:hover,
+.time-tree-year-link.is-active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--foreground);
+  transform: translateX(-2px);
+}
+
+.time-tree-layout.is-searching {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.time-tree-layout.is-searching .time-tree-items {
+  grid-column: 1 / -1;
+}
+
+.time-tree-layout.is-searching .time-tree-rail {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .time-tree-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .time-tree-rail {
+    top: 0.75rem;
+    z-index: 8;
+    grid-column: 1;
+    order: -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding: 0.75rem;
+  }
+
+  .time-tree-current-year,
+  .time-tree-current-month,
+  .time-tree-year-link {
+    flex: 0 0 auto;
+    text-align: left;
+  }
+
+  .time-tree-current-year {
+    font-size: 1.2rem;
+  }
+
+  .time-tree-current-month {
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+    padding-right: 0.65rem;
+    padding-bottom: 0;
+  }
+
+  .time-tree-year-links {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .time-tree-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+
+  .time-tree-card {
+    grid-row: 2;
+  }
+
+  .time-tree-date {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    padding-top: 0;
+    text-align: left;
+  }
+
+  .time-tree-date-day {
+    font-size: 1.05rem;
+  }
+}
+
 .search-glyph {
   position: absolute;
   left: 1.2rem;

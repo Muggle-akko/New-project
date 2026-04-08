@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import {
   buildSidebarTree,
+  estimateReadingTime,
   formatLongDate,
   getNoteFolderLabel,
   getNoteTitle,
@@ -32,8 +33,8 @@ const notes = await getCollection(
 const tree = buildSidebarTree(notes);
 const currentNotePath = normalizeNoteId(entry.id);
 const pageTitle = getNoteTitle(entry);
-const { Content, remarkPluginFrontmatter } = await render(entry);
-const readingTime = Number(remarkPluginFrontmatter?.readingTime ?? 1);
+const { Content } = await render(entry);
+const readingTime = estimateReadingTime(entry.body ?? "");
 const folderLabel = currentNotePath.includes("/") ? currentNotePath.split("/").slice(0, -1).join(" / ") : "顶层";
 const tags = entry.data.tags ?? [];
 const { previous, next } = getSiblingNotes(notes, entry.id);

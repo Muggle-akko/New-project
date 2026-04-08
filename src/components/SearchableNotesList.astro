@@ -1,9 +1,15 @@
-﻿---
+---
 interface SearchableNote {
   url: string;
   path: string;
   title: string;
   dateLabel: string;
+  dateYear: string;
+  dateMonth: string;
+  dateDay: string;
+  dateMonthDay: string;
+  dateYearKey: string;
+  dateMonthKey: string;
   description: string;
   tags: string[];
   content: string;
@@ -15,6 +21,35 @@ interface Props {
 
 const { notes } = Astro.props as Props;
 const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script");
+const excerptLength = 140;
+const getContentPreview = (content: string) => {
+  const text = content.trim();
+  if (!text) return "";
+  return text.length > excerptLength ? `${text.slice(0, excerptLength).trim()}…` : text;
+};
+const getTimelinePathLabel = (path: string) => {
+  const folders = path
+    .split("/")
+    .slice(0, -1)
+    .filter((part) => !/^\d{4}$/.test(part) && !/^\d{1,2}月$/.test(part));
+
+  return folders.join(" / ") || "顶层";
+};
+const timeTreeEntries = notes.map((note, index) => {
+  const previous = notes[index - 1];
+
+  return {
+    note,
+    preview: getContentPreview(note.content),
+    timelinePath: getTimelinePathLabel(note.path),
+    isFirstYear: !previous || previous.dateYearKey !== note.dateYearKey,
+    isFirstMonth: !previous || previous.dateMonthKey !== note.dateMonthKey,
+  };
+});
+const yearLinks = timeTreeEntries
+  .filter((entry) => entry.isFirstYear)
+  .map(({ note }) => ({ key: note.dateYearKey, label: note.dateYear }));
+const firstEntry = timeTreeEntries[0];
 ---
 
 <section class="mt-8 space-y-4" data-note-search>
@@ -25,7 +60,7 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
         <input
           id="note-search-input"
           type="search"
-          placeholder="输入分类、标题、或正文关键词"
+          placeholder="在时间的长藤中，愿我们都能找到彼此"
           autocomplete="off"
           spellcheck="false"
           class="search-input w-full"
@@ -44,32 +79,81 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
     没有找到匹配的笔记，试试更短的关键词，或换成标题、路径、标签里的词。
   </div>
 
-  <div class="space-y-4" data-search-list>
-    {
-      notes.map((note) => (
-        <a
-          href={note.url}
-          class="surface-panel note-search-card block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
-        >
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">{note.path}</p>
-              <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">{note.title}</h2>
-            </div>
-            <time class="pill">{note.dateLabel}</time>
-          </div>
-          {note.description && (
-            <p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">{note.description}</p>
-          )}
-          {
-            note.tags.length > 0 && (
-              <div class="mt-4 flex flex-wrap gap-2">
-                {note.tags.map((tag) => <span class="search-tag">#{tag}</span>)}
+  <div class="time-tree-layout" data-time-tree>
+    <div class="time-tree-items" data-search-list>
+      {
+        timeTreeEntries.map(({ note, preview, timelinePath, isFirstYear, isFirstMonth }) => (
+          <div
+            class="time-tree-entry"
+            data-time-tree-entry
+            data-year={note.dateYear}
+            data-year-key={note.dateYearKey}
+            data-month={note.dateMonth}
+            data-month-key={note.dateMonthKey}
+            data-year-anchor={`year-${note.dateYearKey}`}
+            data-month-anchor={`month-${note.dateMonthKey}`}
+          >
+            {isFirstYear && <span id={`year-${note.dateYearKey}`} class="time-tree-anchor" aria-hidden="true"></span>}
+            {isFirstMonth && <span id={`month-${note.dateMonthKey}`} class="time-tree-anchor" aria-hidden="true"></span>}
+            <a
+              href={note.url}
+              class="surface-panel note-search-card time-tree-card block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
+            >
+              <div>
+                <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">{timelinePath}</p>
+                <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">{note.title}</h2>
               </div>
-            )
-          }
-        </a>
-      ))
+              {preview && (
+                <p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">{preview}</p>
+              )}
+              {
+                note.tags.length > 0 && (
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    {note.tags.map((tag) => <span class="search-tag">#{tag}</span>)}
+                  </div>
+                )
+              }
+            </a>
+            <time class="time-tree-date" aria-label={note.dateLabel}>
+              <span class="time-tree-date-month">{note.dateMonth}</span>
+              <span class="time-tree-date-day">{note.dateDay}</span>
+            </time>
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      firstEntry && (
+        <nav class="surface-panel time-tree-rail" aria-label="时间导航">
+          <a
+            class="time-tree-current-year"
+            href={`#year-${firstEntry.note.dateYearKey}`}
+            data-time-tree-current-year
+          >
+            {firstEntry.note.dateYear}
+          </a>
+          <a
+            class="time-tree-current-month"
+            href={`#month-${firstEntry.note.dateMonthKey}`}
+            data-time-tree-current-month
+          >
+            {firstEntry.note.dateMonth}
+          </a>
+          <div class="time-tree-year-links" aria-label="年份跳转">
+            {yearLinks.map((year) => (
+              <a
+                href={`#year-${year.key}`}
+                class:list={["time-tree-year-link", { "is-active": year.key === firstEntry.note.dateYearKey }]}
+                data-time-tree-year-link
+                data-year-key={year.key}
+              >
+                {year.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+      )
     }
   </div>
 
@@ -99,6 +183,15 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
     const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const tokenize = (value) =>
       Array.from(new Set(value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)));
+    const formatTimelinePathLabel = (path = "") => {
+      const folders = path
+        .split("/")
+        .slice(0, -1)
+        .filter((part) => !/^\d{4}$/.test(part) && !/^\d{1,2}月$/.test(part));
+
+      return folders.join(" / ") || "顶层";
+    };
+
     const includesAny = (text, terms) => terms.some((term) => text.includes(term));
 
     const highlightText = (value, terms) => {
@@ -156,6 +249,8 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
 
     const renderCard = (note, terms) => {
       const snippet = terms.length ? findSnippet(note, terms) : note.description;
+      const displayDate = note.dateMonthDay ?? note.dateLabel;
+      const pathLabel = formatTimelinePathLabel(note.path);
 
       return `
         <a
@@ -164,10 +259,10 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
         >
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">${highlightText(note.path, terms)}</p>
+              <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">${highlightText(pathLabel, terms)}</p>
               <h2 class="mt-2 text-xl font-semibold text-[var(--foreground)]">${highlightText(note.title, terms)}</h2>
             </div>
-            <time class="pill">${escapeHtml(note.dateLabel)}</time>
+            <time class="pill">${escapeHtml(displayDate)}</time>
           </div>
           ${snippet ? `<p class="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted)]">${highlightText(snippet, terms)}</p>` : ""}
           ${renderTags(note.tags, terms)}
@@ -185,6 +280,9 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
       const list = container.querySelector("[data-search-list]");
       const empty = container.querySelector("[data-search-empty]");
       const source = container.querySelector("[data-search-source]");
+      const timeTree = container.querySelector("[data-time-tree]");
+      const currentYear = container.querySelector("[data-time-tree-current-year]");
+      const currentMonth = container.querySelector("[data-time-tree-current-month]");
 
       if (!(input instanceof HTMLInputElement) || !(clear instanceof HTMLButtonElement) || !count || !list || !empty || !source) {
         return;
@@ -200,6 +298,61 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
           .join(" ")
           .toLocaleLowerCase(),
       }));
+
+      const setTimeTreeSearchMode = (isSearching) => {
+        timeTree?.classList.toggle("is-searching", isSearching);
+      };
+
+      const updateTimeTree = () => {
+        if (!timeTree || !(currentYear instanceof HTMLAnchorElement) || !(currentMonth instanceof HTMLAnchorElement)) {
+          return;
+        }
+
+        const entries = Array.from(timeTree.querySelectorAll("[data-time-tree-entry]"));
+        if (!entries.length || timeTree.classList.contains("is-searching")) return;
+
+        const threshold = Math.min(window.innerHeight * 0.32, 220);
+        let active = entries[0];
+
+        for (const entry of entries) {
+          const top = entry.getBoundingClientRect().top;
+          if (top <= threshold) {
+            active = entry;
+          } else {
+            break;
+          }
+        }
+
+        const year = active.dataset.year ?? "";
+        const month = active.dataset.month ?? "";
+        const yearAnchor = active.dataset.yearAnchor;
+        const monthAnchor = active.dataset.monthAnchor;
+
+        currentYear.textContent = year;
+        currentMonth.textContent = month;
+        if (yearAnchor) currentYear.setAttribute("href", `#${yearAnchor}`);
+        if (monthAnchor) currentMonth.setAttribute("href", `#${monthAnchor}`);
+
+        timeTree.querySelectorAll("[data-time-tree-year-link]").forEach((link) => {
+          link.classList.toggle("is-active", link.dataset.yearKey === active.dataset.yearKey);
+        });
+      };
+
+      let timeTreeUpdateQueued = false;
+      const requestTimeTreeUpdate = () => {
+        if (timeTreeUpdateQueued) return;
+        timeTreeUpdateQueued = true;
+        window.requestAnimationFrame(() => {
+          timeTreeUpdateQueued = false;
+          updateTimeTree();
+        });
+      };
+
+      if (timeTree) {
+        window.addEventListener("scroll", requestTimeTreeUpdate, { passive: true });
+        window.addEventListener("resize", requestTimeTreeUpdate);
+        updateTimeTree();
+      }
 
       const syncUrl = (query) => {
         const url = new URL(window.location.href);
@@ -218,15 +371,18 @@ const serializedNotes = JSON.stringify(notes).replace(/<\/script/gi, "<\\/script
         clear.classList.toggle("hidden", !normalizedQuery);
 
         if (!terms.length) {
+          setTimeTreeSearchMode(false);
           list.innerHTML = initialMarkup;
           empty.classList.add("hidden");
           count.textContent = `共 ${notes.length} 篇笔记`;
+          updateTimeTree();
           if (updateUrl) syncUrl("");
           return;
         }
 
         const results = notes.filter((note) => terms.every((term) => note.searchText.includes(term)));
 
+        setTimeTreeSearchMode(true);
         list.innerHTML = results.map((note) => renderCard(note, terms)).join("");
         empty.classList.toggle("hidden", results.length !== 0);
         count.textContent = results.length ? `找到 ${results.length} 篇相关笔记` : "没有找到相关笔记";

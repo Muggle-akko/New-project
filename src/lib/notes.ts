@@ -1,4 +1,4 @@
-﻿import type { CollectionEntry } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 export type NoteEntry = CollectionEntry<"notes">;
 type DateValue = Date | string | undefined;
@@ -25,6 +25,12 @@ export type SearchableNote = {
   path: string;
   title: string;
   dateLabel: string;
+  dateYear: string;
+  dateMonth: string;
+  dateDay: string;
+  dateMonthDay: string;
+  dateYearKey: string;
+  dateMonthKey: string;
   description: string;
   tags: string[];
   content: string;
@@ -219,6 +225,33 @@ export function formatShortDate(value: DateValue) {
   }).format(date);
 }
 
+function getSearchableDateParts(value: DateValue) {
+  const date = toDate(value);
+
+  if (!date) {
+    return {
+      dateYear: "未标注",
+      dateMonth: "--",
+      dateDay: "--",
+      dateMonthDay: "未标注",
+      dateYearKey: "undated",
+      dateMonthKey: "undated",
+    };
+  }
+
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  return {
+    dateYear: year,
+    dateMonth: String(date.getMonth() + 1) + "月",
+    dateDay: String(date.getDate()) + "日",
+    dateMonthDay: String(date.getMonth() + 1) + "月" + String(date.getDate()) + "日",
+    dateYearKey: year,
+    dateMonthKey: year + "-" + month,
+  };
+}
+
 export function extractSearchText(markdown: string) {
   return markdown
     .replace(/```[\s\S]*?```/g, " ")
@@ -236,14 +269,32 @@ export function extractSearchText(markdown: string) {
     .trim();
 }
 
+function countReadableUnits(text: string) {
+  const cjkChars = text.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const nonCjkText = text.replace(/\p{Script=Han}/gu, " ");
+  const words = nonCjkText.match(/[\p{Letter}\p{Number}]+(?:['’.-][\p{Letter}\p{Number}]+)*/gu)?.length ?? 0;
+
+  return words + cjkChars / 2;
+}
+
+export function estimateReadingTime(markdown: string) {
+  const readableUnits = countReadableUnits(extractSearchText(markdown));
+  return Math.max(1, Math.ceil(readableUnits / 220));
+}
+
 export function buildSearchableNotes(entries: NoteEntry[]): SearchableNote[] {
-  return getRecentNotes(entries, entries.length).map((note) => ({
-    url: noteUrlFromId(note.id),
-    path: normalizeNoteId(note.id),
-    title: getNoteTitle(note),
-    dateLabel: formatLongDate(note.data.date),
-    description: note.data.description ?? "",
-    tags: note.data.tags ?? [],
-    content: extractSearchText(note.body ?? ""),
-  }));
+  return getRecentNotes(entries, entries.length).map((note) => {
+    const dateParts = getSearchableDateParts(note.data.date);
+
+    return {
+      url: noteUrlFromId(note.id),
+      path: normalizeNoteId(note.id),
+      title: getNoteTitle(note),
+      dateLabel: formatLongDate(note.data.date),
+      ...dateParts,
+      description: note.data.description ?? "",
+      tags: note.data.tags ?? [],
+      content: extractSearchText(note.body ?? ""),
+    };
+  });
 }
