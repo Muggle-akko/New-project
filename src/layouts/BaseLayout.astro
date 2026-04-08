@@ -119,8 +119,11 @@ const searchNotes = buildSearchableNotes(allNotes);
       const playPageEnter = () => {
         window.setTimeout(() => {
           document.querySelectorAll(".page-content").forEach((content) => {
-            content.classList.remove("page-content-exit");
+            content.classList.remove("page-content-exit", "page-content-static");
             content.classList.add("page-content-ready");
+            window.setTimeout(() => {
+              content.classList.add("page-content-static");
+            }, 560);
           });
         }, 80);
       };
@@ -178,7 +181,9 @@ const searchNotes = buildSearchableNotes(allNotes);
           closeSidebar();
         }
 
-        document.querySelector(".page-content")?.classList.add("page-content-exit");
+        const pageContent = document.querySelector(".page-content");
+        pageContent?.classList.remove("page-content-static");
+        pageContent?.classList.add("page-content-exit");
         window.setTimeout(() => {
           window.location.href = url.href;
         }, 190);

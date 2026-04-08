@@ -148,6 +148,11 @@ code {
   transition-duration: 180ms;
 }
 
+.js .page-content.page-content-static {
+  transform: none;
+  will-change: auto;
+}
+
 .theme-toggle {
   position: relative;
   display: inline-flex;
@@ -497,6 +502,8 @@ body {
   background: color-mix(in srgb, var(--panel) 88%, transparent);
   padding: 0.95rem 1rem 0.95rem 3rem;
   color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1.25;
   outline: none;
   transition:
     border-color 180ms ease,
@@ -524,6 +531,25 @@ body {
 .search-input:focus {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.search-panel .search-input-wrap .search-glyph {
+  left: 1rem;
+}
+
+@media (max-width: 768px) {
+  .search-panel .search-input {
+    min-height: 3.05rem;
+    padding: 0.72rem 0.85rem 0.72rem 2.55rem;
+    font-size: clamp(0.76rem, 3.35vw, 0.95rem);
+    line-height: 1.2;
+  }
+
+  .search-panel .search-input-wrap .search-glyph {
+    left: 0.92rem;
+    width: 0.95rem;
+    height: 0.95rem;
+  }
 }
 
 .search-highlight {
@@ -687,39 +713,69 @@ body {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .time-tree-items {
+    padding-right: clamp(3.2rem, 15vw, 4.6rem);
+  }
+
+  .time-tree-layout.is-searching .time-tree-items {
+    padding-right: 0;
+  }
+
   .time-tree-rail {
-    top: 0.75rem;
-    z-index: 8;
-    grid-column: 1;
-    order: -1;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.65rem;
-    overflow-x: auto;
-    padding: 0.75rem;
+    position: fixed;
+    top: 5rem;
+    right: 0.75rem;
+    z-index: 35;
+    grid-column: auto;
+    order: initial;
+    width: min(4.6rem, 20vw);
+    max-height: calc(100dvh - 6.25rem);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.42rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 1rem;
+    padding: 0.55rem 0.45rem;
+    background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(16px) saturate(116%);
   }
 
   .time-tree-current-year,
   .time-tree-current-month,
   .time-tree-year-link {
     flex: 0 0 auto;
-    text-align: left;
+    text-align: center;
   }
 
   .time-tree-current-year {
-    font-size: 1.2rem;
+    padding: 0.24rem 0.2rem;
+    font-size: 1rem;
   }
 
   .time-tree-current-month {
-    border-right: 1px solid var(--border);
-    border-bottom: 0;
-    padding-right: 0.65rem;
-    padding-bottom: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 0.2rem 0.45rem;
+    font-size: 0.76rem;
   }
 
   .time-tree-year-links {
-    display: flex;
-    gap: 0.35rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .time-tree-year-link {
+    padding: 0.34rem 0.2rem;
+    font-size: 0.72rem;
+  }
+
+  .time-tree-current-year:hover,
+  .time-tree-current-month:hover,
+  .time-tree-year-link:hover,
+  .time-tree-year-link.is-active {
+    transform: none;
   }
 
   .time-tree-entry {
