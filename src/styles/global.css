@@ -105,11 +105,34 @@ code {
 }
 
 @media (max-width: 1023px) {
+  [data-sidebar-backdrop],
+  [data-sidebar-panel] {
+    top: 0;
+    bottom: auto;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  @supports (height: 100lvh) {
+    [data-sidebar-backdrop],
+    [data-sidebar-panel] {
+      height: 100lvh;
+    }
+  }
+
+  [data-sidebar-backdrop] {
+    left: 0;
+    right: 0;
+    width: 100vw;
+  }
+
   .sidebar-shell {
     min-height: 100%;
+    height: 100%;
     border-right: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter: blur(18px);
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 }
 .note-shell {
@@ -714,7 +737,7 @@ body {
   }
 
   .time-tree-items {
-    padding-right: clamp(3.2rem, 15vw, 4.6rem);
+    padding-right: clamp(2.35rem, 10vw, 3.35rem);
   }
 
   .time-tree-layout.is-searching .time-tree-items {
@@ -724,11 +747,11 @@ body {
   .time-tree-rail {
     position: fixed;
     top: 5rem;
-    right: 0.75rem;
+    right: 0.55rem;
     z-index: 35;
     grid-column: auto;
     order: initial;
-    width: min(4.6rem, 20vw);
+    width: min(4.15rem, 17vw);
     max-height: calc(100dvh - 6.25rem);
     flex-direction: column;
     align-items: stretch;
@@ -736,10 +759,12 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     border-radius: 1rem;
-    padding: 0.55rem 0.45rem;
-    background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
-    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.12);
-    backdrop-filter: blur(16px) saturate(116%);
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    padding: 0.55rem 0.42rem;
+    background: color-mix(in srgb, var(--panel-strong) 10%, transparent);
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.1);
+    -webkit-backdrop-filter: blur(18px) saturate(126%);
+    backdrop-filter: blur(18px) saturate(126%);
   }
 
   .time-tree-current-year,
@@ -755,10 +780,16 @@ body {
   }
 
   .time-tree-current-month {
+    display: flex;
+    min-height: 1.8rem;
+    align-items: center;
+    justify-content: center;
     border-right: 0;
     border-bottom: 1px solid var(--border);
-    padding: 0 0.2rem 0.45rem;
+    padding: 0.32rem 0.2rem 0.28rem;
     font-size: 0.76rem;
+    line-height: 1;
+    transform: translateY(1.5px);
   }
 
   .time-tree-year-links {
@@ -772,10 +803,13 @@ body {
   }
 
   .time-tree-current-year:hover,
-  .time-tree-current-month:hover,
   .time-tree-year-link:hover,
   .time-tree-year-link.is-active {
     transform: none;
+  }
+
+  .time-tree-current-month:hover {
+    transform: translateY(1.5px);
   }
 
   .time-tree-entry {
