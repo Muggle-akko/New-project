@@ -1,4 +1,4 @@
-﻿---
+---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TwikooComments from "../../components/TwikooComments.astro";
@@ -36,14 +36,14 @@ const currentNotePath = normalizeNoteId(entry.id);
 const pageTitle = getNoteTitle(entry);
 const { Content } = await render(entry);
 const readingTime = estimateReadingTime(entry.body ?? "");
-const folderLabel = currentNotePath.includes("/") ? currentNotePath.split("/").slice(0, -1).join(" / ") : "椤跺眰";
+const folderLabel = currentNotePath.includes("/") ? currentNotePath.split("/").slice(0, -1).join(" / ") : "顶层";
 const tags = entry.data.tags ?? [];
 const { previous, next } = getSiblingNotes(notes, entry.id);
 ---
 
 <BaseLayout
   title={pageTitle}
-  description={entry.data.description ?? `${pageTitle} | 绗旇`}
+  description={entry.data.description ?? `${pageTitle} | 笔记`}
   tree={tree}
   currentNotePath={currentNotePath}
 >
@@ -57,9 +57,9 @@ const { previous, next } = getSiblingNotes(notes, entry.id);
         <p class="mt-5 max-w-3xl text-base leading-8 text-[var(--muted)]">{entry.data.description}</p>
       )}
       <div class="mt-6 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
-        <span class="pill">鍙戝竷浜?{formatLongDate(entry.data.date)}</span>
-        {entry.data.updated && <span class="pill">鏇存柊浜?{formatLongDate(entry.data.updated)}</span>}
-        <span class="pill">绾?{readingTime} 鍒嗛挓闃呰</span>
+        <span class="pill">发布于 {formatLongDate(entry.data.date)}</span>
+        {entry.data.updated && <span class="pill">更新于 {formatLongDate(entry.data.updated)}</span>}
+        <span class="pill">约 {readingTime} 分钟阅读</span>
       </div>
       {
         tags.length > 0 && (
@@ -86,7 +86,7 @@ const { previous, next } = getSiblingNotes(notes, entry.id);
               href={noteUrlFromId(previous.id)}
               class="surface-panel block rounded-[1.5rem] p-5 transition hover:-translate-y-0.5"
             >
-              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">涓婁竴绡?/p>
+              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">上一篇</p>
               <h2 class="mt-3 text-lg font-semibold text-[var(--foreground)]">{getNoteTitle(previous)}</h2>
               <p class="mt-2 text-sm text-[var(--muted)]">{formatLongDate(previous.data.date)}</p>
             </a>
@@ -99,7 +99,7 @@ const { previous, next } = getSiblingNotes(notes, entry.id);
               href={noteUrlFromId(next.id)}
               class="surface-panel block rounded-[1.5rem] p-5 text-left transition hover:-translate-y-0.5 md:text-right"
             >
-              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">涓嬩竴绡?/p>
+              <p class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">下一篇</p>
               <h2 class="mt-3 text-lg font-semibold text-[var(--foreground)]">{getNoteTitle(next)}</h2>
               <p class="mt-2 text-sm text-[var(--muted)]">{formatLongDate(next.data.date)}</p>
             </a>
