@@ -21,6 +21,19 @@ const {
   currentNotePath,
 } = Astro.props;
 const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
+const currentPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const navLinks = [
+  {
+    href: "/notes",
+    label: "时间树",
+    active: currentPath === "/notes" || currentPath.startsWith("/notes/"),
+  },
+  {
+    href: "/guestbook",
+    label: "留言板",
+    active: currentPath === "/guestbook" || currentPath.startsWith("/guestbook/"),
+  },
+];
 const allNotes = await getCollection(
   "notes",
   ({ data }) => !import.meta.env.PROD || !data.draft,
@@ -49,7 +62,7 @@ const searchNotes = buildSearchableNotes(allNotes);
   </head>
   <body class="antialiased">
     <header class="frost-header sticky top-0 z-30 border-b border-[var(--border)] backdrop-blur-xl">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 lg:px-6">
         <div class="flex items-center gap-3">
           <button
             type="button"
@@ -61,12 +74,19 @@ const searchNotes = buildSearchableNotes(allNotes);
           <a href="/" class="text-sm uppercase tracking-[0.32em] text-[var(--muted)]">{SITE.title}</a>
         </div>
 
-        <a
-          href="/notes"
-          class="inline-flex items-center rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--soft)]"
-        >
-          时间树
-        </a>
+        <nav class="flex flex-wrap items-center justify-end gap-2" aria-label="站点导航">
+          {
+            navLinks.map((link) => (
+              <a
+                href={link.href}
+                class:list={["top-nav-link", link.active && "top-nav-link-active"]}
+                aria-current={link.active ? "page" : undefined}
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </nav>
       </div>
     </header>
 

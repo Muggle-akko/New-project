@@ -1,0 +1,30 @@
+﻿---
+import { getCollection } from "astro:content";
+import GuestbookTabs from "../components/GuestbookTabs.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { buildSidebarTree, getNoteTitle, noteUrlFromId } from "../lib/notes";
+
+const notes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const tree = buildSidebarTree(notes);
+const noteLinks = notes.map((note) => ({
+  url: noteUrlFromId(note.id),
+  title: getNoteTitle(note),
+}));
+---
+
+<BaseLayout title="留言板" description="在留言板打个招呼，或按时间查看全站文章留言汇总。" tree={tree}>
+  <section>
+    <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">留言板</p>
+    <h1 class="mt-3 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">
+      采一朵花，留一句话。
+    </h1>
+    <p class="mt-5 max-w-3xl text-base leading-8 text-[var(--muted)]">
+      我很高兴知道你来过。
+    </p>
+  </section>
+
+  <GuestbookTabs noteLinks={noteLinks} />
+</BaseLayout>

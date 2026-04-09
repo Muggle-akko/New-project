@@ -1,0 +1,108 @@
+﻿---
+import TwikooComments from "./TwikooComments.astro";
+import TwikooSummary from "./TwikooSummary.astro";
+
+interface NoteLinkMeta {
+  url: string;
+  title: string;
+}
+
+interface Props {
+  noteLinks: NoteLinkMeta[];
+}
+
+const { noteLinks } = Astro.props;
+---
+
+<section class="mt-8" data-guestbook-tabs-root>
+  <div class="guestbook-tabs" role="tablist" aria-label="留言板内容切换">
+    <button
+      type="button"
+      id="guestbook-tab-board"
+      class="guestbook-tab-trigger is-active"
+      data-tab-trigger
+      data-tab="board"
+      role="tab"
+      aria-selected="true"
+      aria-controls="guestbook-panel-board"
+    >
+      留言板
+    </button>
+    <button
+      type="button"
+      id="guestbook-tab-summary"
+      class="guestbook-tab-trigger"
+      data-tab-trigger
+      data-tab="summary"
+      role="tab"
+      aria-selected="false"
+      aria-controls="guestbook-panel-summary"
+    >
+      散落的话
+    </button>
+  </div>
+
+  <div id="guestbook-panel-board" class="mt-6" data-tab-panel="board" role="tabpanel" aria-labelledby="guestbook-tab-board">
+    <TwikooComments path="/guestbook" title="留言板" />
+  </div>
+
+  <div
+    id="guestbook-panel-summary"
+    class="mt-6"
+    data-tab-panel="summary"
+    role="tabpanel"
+    aria-labelledby="guestbook-tab-summary"
+    hidden
+  >
+    <TwikooSummary noteLinks={noteLinks} />
+  </div>
+
+  <script is:inline>
+    (() => {
+      const root = document.querySelector("[data-guestbook-tabs-root]");
+      if (!root) {
+        return;
+      }
+
+      const triggers = Array.from(root.querySelectorAll("[data-tab-trigger]"));
+      const panels = Array.from(root.querySelectorAll("[data-tab-panel]"));
+
+      const readTab = () => (window.location.hash === "#summary" ? "summary" : "board");
+
+      const setTab = (tab, options = {}) => {
+        const { syncHash = true } = options;
+
+        triggers.forEach((trigger) => {
+          const isActive = trigger.dataset.tab === tab;
+          trigger.classList.toggle("is-active", isActive);
+          trigger.setAttribute("aria-selected", String(isActive));
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.tabPanel !== tab;
+        });
+
+        if (syncHash) {
+          const nextUrl = tab === "summary"
+            ? `${window.location.pathname}${window.location.search}#summary`
+            : `${window.location.pathname}${window.location.search}`;
+          window.history.replaceState(null, "", nextUrl);
+        }
+
+        if (tab === "summary") {
+          document.dispatchEvent(new Event("guestbook:summary-open"));
+        }
+      };
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          setTab(trigger.dataset.tab || "board");
+        });
+      });
+
+      setTab(readTab(), { syncHash: false });
+      window.addEventListener("hashchange", () => setTab(readTab(), { syncHash: false }));
+      document.addEventListener("astro:page-load", () => setTab(readTab(), { syncHash: false }));
+    })();
+  </script>
+</section>

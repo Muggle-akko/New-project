@@ -1,0 +1,226 @@
+﻿---
+interface NoteLinkMeta {
+  url: string;
+  title: string;
+}
+
+interface Props {
+  noteLinks: NoteLinkMeta[];
+  envId?: string;
+  region?: string;
+  cdnUrl?: string;
+}
+
+const envId = Astro.props.envId ?? import.meta.env.PUBLIC_TWIKOO_ENV_ID;
+const region = Astro.props.region ?? import.meta.env.PUBLIC_TWIKOO_REGION;
+const cdnUrl =
+  Astro.props.cdnUrl ??
+  import.meta.env.PUBLIC_TWIKOO_JS_URL ??
+  "https://cdn.jsdelivr.net/npm/twikoo@1.7.7/dist/twikoo.all.min.js";
+const noteLinks = Astro.props.noteLinks as NoteLinkMeta[];
+const noteLinksJson = JSON.stringify(noteLinks);
+const shouldRender = Boolean(envId) || !import.meta.env.PROD;
+---
+
+{
+  shouldRender && (
+    <section class="guestbook-summary-shell">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-semibold tracking-tight text-[var(--foreground)]">散落的话</h2>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted)]">
+            花园里所有的留言将汇集于此。
+          </p>
+        </div>
+        <span class="guestbook-summary-badge">只读</span>
+      </div>
+
+      {envId ? (
+        <>
+          <div id="twikoo-summary" class="mt-6">
+            <p class="twikoo-state">正在打扫花园...</p>
+          </div>
+
+          <script is:inline define:vars={{ envId, region, cdnUrl, noteLinksJson }}>
+            (() => {
+              const containerId = "twikoo-summary";
+              const limit = 100;
+              let loaded = false;
+
+              const loadTwikoo = async () => {
+                if (window.twikoo?.getRecentComments) {
+                  return window.twikoo;
+                }
+
+                if (window.__twikooLoaderPromise) {
+                  return window.__twikooLoaderPromise;
+                }
+
+                window.__twikooLoaderPromise = new Promise((resolve, reject) => {
+                  const existing = document.querySelector('script[data-twikoo-loader="true"]');
+
+                  if (existing) {
+                    existing.addEventListener("load", () => resolve(window.twikoo), { once: true });
+                    existing.addEventListener(
+                      "error",
+                      () => reject(new Error("Twikoo script failed to load.")),
+                      { once: true },
+                    );
+                    return;
+                  }
+
+                  const script = document.createElement("script");
+                  script.src = cdnUrl;
+                  script.defer = true;
+                  script.dataset.twikooLoader = "true";
+                  script.addEventListener("load", () => resolve(window.twikoo), { once: true });
+                  script.addEventListener(
+                    "error",
+                    () => reject(new Error("Twikoo script failed to load.")),
+                    { once: true },
+                  );
+                  document.head.append(script);
+                });
+
+                return window.__twikooLoaderPromise;
+              };
+
+              const escapeHtml = (value) =>
+                String(value ?? "")
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/\"/g, "&quot;")
+                  .replace(/'/g, "&#39;");
+
+              const toTimestamp = (value) => {
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+              };
+
+              const formatTime = (value) => {
+                const timestamp = toTimestamp(value);
+                if (!timestamp) {
+                  return "时间未知";
+                }
+
+                return new Intl.DateTimeFormat("zh-CN", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                }).format(new Date(timestamp));
+              };
+
+              const renderEmpty = (message) => {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                  return;
+                }
+
+                container.innerHTML = `<p class="twikoo-state">${message}</p>`;
+              };
+
+              const initSummary = async () => {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                  return;
+                }
+
+                const noteLinks = JSON.parse(noteLinksJson);
+                if (!Array.isArray(noteLinks) || noteLinks.length === 0) {
+                  renderEmpty("站内还没有花留下。");
+                  return;
+                }
+
+                container.innerHTML = '<p class="twikoo-state">正在打扫散落的花...</p>';
+
+                try {
+                  const twikoo = await loadTwikoo();
+                  const noteMap = new Map(noteLinks.map((note) => [note.url, note]));
+                  const comments = await twikoo.getRecentComments({
+                    envId,
+                    ...(region ? { region } : {}),
+                    urls: noteLinks.map((note) => note.url),
+                    pageSize: limit,
+                    includeReply: false,
+                  });
+
+                  const items = Array.isArray(comments)
+                    ? comments
+                        .filter((comment) => noteMap.has(comment.url))
+                        .sort((a, b) => toTimestamp(b.created) - toTimestamp(a.created))
+                    : [];
+
+                  if (!items.length) {
+                    renderEmpty("现在还没有文章留言，先去写下第一条吧。");
+                    return;
+                  }
+
+                  const summaryHint = items.length >= limit
+                    ? `当前展示最近 ${limit} 条文章留言`
+                    : `共汇总 ${items.length} 条文章留言`;
+
+                  const cards = items.map((comment) => {
+                    const note = noteMap.get(comment.url);
+                    const nick = escapeHtml(comment.nick || "匿名访客");
+                    const text = escapeHtml(comment.commentText || "这条留言没有可展示的纯文本内容。")
+                      .replace(/\r?\n/g, "<br />");
+                    const noteTitle = escapeHtml(note?.title || comment.url || "原文");
+                    const noteUrl = escapeHtml(`${note?.url || comment.url}#twikoo-comments`);
+                    const time = escapeHtml(comment.relativeTime || formatTime(comment.created));
+                    const exactTime = escapeHtml(formatTime(comment.created));
+
+                    return `
+                      <article class="guestbook-comment-card">
+                        <div class="guestbook-comment-head">
+                          <div class="min-w-0">
+                            <p class="guestbook-comment-author">${nick}</p>
+                            <p class="guestbook-comment-meta" title="${exactTime}">${time}</p>
+                          </div>
+                          <a class="guestbook-comment-link" href="${noteUrl}">查看原文</a>
+                        </div>
+                        <p class="guestbook-comment-text">${text}</p>
+                        <p class="guestbook-comment-source">来自 <a href="${noteUrl}">${noteTitle}</a></p>
+                      </article>
+                    `;
+                  }).join("");
+
+                  container.innerHTML = `
+                    <div class="guestbook-summary-meta">${summaryHint}</div>
+                    <div class="guestbook-summary-list">${cards}</div>
+                  `;
+                } catch (error) {
+                  console.error("[Twikoo] Failed to load recent comments.", error);
+                  renderEmpty("打扫园丁罢工了，晚点来看看");
+                }
+              };
+
+              const ensureLoaded = () => {
+                if (loaded) {
+                  return;
+                }
+
+                loaded = true;
+                initSummary();
+              };
+
+              if (window.location.hash === "#summary") {
+                ensureLoaded();
+              }
+
+              document.addEventListener("guestbook:summary-open", ensureLoaded);
+              document.addEventListener("astro:page-load", () => {
+                if (window.location.hash === "#summary") {
+                  ensureLoaded();
+                }
+              });
+            })();
+          </script>
+        </>
+      ) : (
+        <p class="twikoo-state mt-6">
+          未检测到 <code>PUBLIC_TWIKOO_ENV_ID</code>，留言汇总暂未启用。
+        </p>
+      )}
+    </section>
+  )
+}

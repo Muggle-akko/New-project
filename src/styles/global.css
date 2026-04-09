@@ -1135,3 +1135,179 @@ body {
 }
 
 
+
+.top-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.55rem 1rem;
+  font-size: 0.92rem;
+  color: var(--foreground);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.top-nav-link:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--soft) 75%, transparent);
+  transform: translateY(-1px);
+}
+
+.top-nav-link-active {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.guestbook-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.guestbook-tab-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  padding: 0.7rem 1.15rem;
+  color: var(--muted);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.guestbook-tab-trigger:hover {
+  border-color: var(--accent);
+  color: var(--foreground);
+  transform: translateY(-1px);
+}
+
+.guestbook-tab-trigger.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--foreground);
+}
+
+.guestbook-tab-trigger:focus-visible,
+.top-nav-link:focus-visible,
+.guestbook-comment-link:focus-visible,
+.guestbook-comment-source a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.guestbook-summary-shell {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.guestbook-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--soft) 60%, transparent);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.guestbook-summary-meta {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.guestbook-summary-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.guestbook-comment-card {
+  border-radius: 1.35rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  padding: 1.15rem 1.2rem;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.guestbook-comment-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  transform: translateY(-1px);
+}
+
+.guestbook-comment-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guestbook-comment-author {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.guestbook-comment-meta {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.guestbook-comment-link,
+.guestbook-comment-source a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.guestbook-comment-link {
+  flex: none;
+  font-size: 0.9rem;
+}
+
+.guestbook-comment-text {
+  margin-top: 0.9rem;
+  color: var(--foreground);
+  line-height: 1.85;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.guestbook-comment-source {
+  margin-top: 0.9rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .guestbook-tab-trigger,
+  .top-nav-link {
+    min-height: 2.6rem;
+    padding-inline: 0.95rem;
+  }
+
+  .guestbook-comment-head {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .guestbook-comment-link {
+    font-size: 0.88rem;
+  }
+}
