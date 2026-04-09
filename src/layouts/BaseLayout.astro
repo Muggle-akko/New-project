@@ -12,6 +12,7 @@ interface Props {
   description?: string;
   tree: SidebarNode[];
   currentNotePath?: string;
+  pageContentClass?: string;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   description = SITE.description,
   tree,
   currentNotePath,
+  pageContentClass,
 } = Astro.props;
 const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
 const currentPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
@@ -101,7 +103,7 @@ const searchNotes = buildSearchableNotes(allNotes);
       </aside>
 
       <main class="min-w-0 flex-1 lg:col-start-2 lg:pl-0">
-        <div class="note-shell page-content px-0 py-2 sm:px-0 sm:py-3 lg:rounded-[2rem] lg:px-10 lg:py-9">
+        <div class:list={["note-shell page-content px-0 py-2 sm:px-0 sm:py-3 lg:rounded-[2rem] lg:px-10 lg:py-9", pageContentClass]}>
           <slot />
         </div>
       </main>
@@ -225,3 +227,5 @@ const searchNotes = buildSearchableNotes(allNotes);
     </script>
   </body>
 </html>
+
+
