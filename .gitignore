@@ -1,5 +1,8 @@
-node_modules
+﻿node_modules
 .astro
 dist
 public/_vault
 .vercel
+.env
+.env.*
+!.env.example

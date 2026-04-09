@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -398,6 +398,19 @@ details[open] > .folder-children .folder-children-inner {
   padding: 0.55rem 0.9rem;
 }
 
+.twikoo-shell {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.twikoo-state {
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--soft) 55%, transparent);
+  padding: 0.9rem 1rem;
+  color: var(--muted);
+}
 .note-prose {
   color: var(--foreground);
 }
@@ -1120,3 +1133,5 @@ body {
     left: 1rem;
   }
 }
+
+

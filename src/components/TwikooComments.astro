@@ -1,0 +1,120 @@
+﻿---
+interface Props {
+  envId?: string;
+  path?: string;
+  lang?: string;
+  region?: string;
+  cdnUrl?: string;
+  title?: string;
+}
+
+const envId = Astro.props.envId ?? import.meta.env.PUBLIC_TWIKOO_ENV_ID;
+const path = Astro.props.path;
+const lang = Astro.props.lang ?? import.meta.env.PUBLIC_TWIKOO_LANG ?? "zh-CN";
+const region = Astro.props.region ?? import.meta.env.PUBLIC_TWIKOO_REGION;
+const cdnUrl =
+  Astro.props.cdnUrl ??
+  import.meta.env.PUBLIC_TWIKOO_JS_URL ??
+  "https://cdn.jsdelivr.net/npm/twikoo@1.7.7/dist/twikoo.all.min.js";
+const title = Astro.props.title ?? "评论";
+const shouldRender = Boolean(envId) || !import.meta.env.PROD;
+---
+
+{
+  shouldRender && (
+    <section class="twikoo-shell">
+      <div class="flex items-center justify-between gap-4">
+        <h2 class="text-2xl font-semibold tracking-tight text-[var(--foreground)]">{title}</h2>
+        <span class="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Twikoo</span>
+      </div>
+
+      {envId ? (
+        <>
+          <div id="twikoo-comments" class="mt-6"></div>
+
+          <script is:inline define:vars={{ envId, path, lang, region, cdnUrl }}>
+            (() => {
+              const containerId = "twikoo-comments";
+
+              const loadTwikoo = async () => {
+                if (window.twikoo?.init) {
+                  return window.twikoo;
+                }
+
+                if (window.__twikooLoaderPromise) {
+                  return window.__twikooLoaderPromise;
+                }
+
+                window.__twikooLoaderPromise = new Promise((resolve, reject) => {
+                  const existing = document.querySelector('script[data-twikoo-loader="true"]');
+
+                  if (existing) {
+                    existing.addEventListener("load", () => resolve(window.twikoo), { once: true });
+                    existing.addEventListener(
+                      "error",
+                      () => reject(new Error("Twikoo script failed to load.")),
+                      { once: true },
+                    );
+                    return;
+                  }
+
+                  const script = document.createElement("script");
+                  script.src = cdnUrl;
+                  script.defer = true;
+                  script.dataset.twikooLoader = "true";
+                  script.addEventListener("load", () => resolve(window.twikoo), { once: true });
+                  script.addEventListener(
+                    "error",
+                    () => reject(new Error("Twikoo script failed to load.")),
+                    { once: true },
+                  );
+                  document.head.append(script);
+                });
+
+                return window.__twikooLoaderPromise;
+              };
+
+              const initTwikoo = async () => {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                  return;
+                }
+
+                const commentPath = path || window.location.pathname;
+                container.innerHTML = "";
+
+                try {
+                  const twikoo = await loadTwikoo();
+                  await twikoo.init({
+                    envId,
+                    el: `#${containerId}`,
+                    path: commentPath,
+                    lang,
+                    ...(region ? { region } : {}),
+                  });
+                } catch (error) {
+                  console.error("[Twikoo] Failed to initialize comments.", error);
+                  container.innerHTML =
+                    '<p class="twikoo-state">评论加载失败，请稍后刷新重试。</p>';
+                }
+              };
+
+              if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", initTwikoo, { once: true });
+              } else {
+                initTwikoo();
+              }
+
+              document.addEventListener("astro:page-load", initTwikoo);
+            })();
+          </script>
+        </>
+      ) : (
+        <p class="twikoo-state mt-6">
+          未检测到 <code>PUBLIC_TWIKOO_ENV_ID</code>，评论区暂未启用。
+        </p>
+      )}
+    </section>
+  )
+}
+
