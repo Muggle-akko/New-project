@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "node ./scripts/sync-vault-assets.mjs",
+    "check:encoding": "node ./scripts/check-utf8.mjs",
+    "predev": "npm run check:encoding && node ./scripts/sync-vault-assets.mjs",
     "dev": "astro dev",
-    "prebuild": "node ./scripts/sync-vault-assets.mjs",
+    "prebuild": "npm run check:encoding && node ./scripts/sync-vault-assets.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "npm run check:encoding && astro check"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",

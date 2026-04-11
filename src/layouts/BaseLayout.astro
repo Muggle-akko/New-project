@@ -35,6 +35,11 @@ const navLinks = [
     label: "留言板",
     active: currentPath === "/guestbook" || currentPath.startsWith("/guestbook/"),
   },
+  {
+    href: "/friends",
+    label: "友链",
+    active: currentPath === "/friends" || currentPath.startsWith("/friends/"),
+  },
 ];
 const allNotes = await getCollection(
   "notes",

@@ -1,0 +1,112 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { friendLinks } from "../data/friends";
+import { buildSidebarTree } from "../lib/notes";
+
+const notes = await getCollection(
+  "notes",
+  ({ data }) => !import.meta.env.PROD || !data.draft,
+);
+const tree = buildSidebarTree(notes);
+
+const formatUrlLabel = (value: string) => {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "");
+    const path = url.pathname === "/" ? "" : url.pathname.replace(/\/$/, "");
+
+    return `${host}${path}`;
+  } catch {
+    return value;
+  }
+};
+
+const getAvatarText = (name: string) => {
+  const normalized = name
+    .replace(/[\s|｜·・.,，。:：;；/\\()[\]{}【】「」『』《》<>]+/g, " ")
+    .replace(/博客|Blog|BLOG|blog|网站|Site|SITE|site|主页|Home|HOME|home/g, "")
+    .trim();
+
+  if (!normalized) return "友";
+
+  const words = normalized.split(/\s+/).filter(Boolean);
+  if (words.length > 1 && words.every((word) => /^[A-Za-z0-9]+$/.test(word))) {
+    return words.slice(0, 2).map((word) => word[0].toUpperCase()).join("");
+  }
+
+  const cjkChars = Array.from(normalized).filter((char) => /[\p{Script=Han}\p{Letter}\p{Number}]/u.test(char));
+  return cjkChars.slice(0, 2).join("").toUpperCase() || "友";
+};
+---
+
+<BaseLayout title="友情链接" description="一些值得顺手拜访的朋友和网站。" tree={tree} pageContentClass="page-content-no-shift">
+  <section class="friend-hero rounded-[1.9rem] border border-[var(--border)] bg-[var(--soft)]/45 p-6 sm:p-8">
+    <p class="text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Friend Links</p>
+    <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <div>
+        <h1 class="text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">友情链接</h1>
+        <p class="mt-5 max-w-3xl text-base leading-8 text-[var(--muted)]">
+          我的好朋友们的个人网站，欢迎互相访问与添加友链。
+        </p>
+      </div>
+      <span class="friend-count-pill">{friendLinks.length} 个站点</span>
+    </div>
+  </section>
+
+  {
+    friendLinks.length ? (
+      <section class="friend-grid mt-8" aria-label="友情链接列表">
+        {friendLinks.map((friend) => (
+          <a
+            href={friend.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="friend-card surface-panel"
+            aria-label={`访问 ${friend.name}`}
+          >
+            <div class="friend-card-head">
+              <div class="friend-avatar-wrap" aria-hidden="true">
+                <span class="friend-avatar-fallback">{getAvatarText(friend.name)}</span>
+                {friend.avatarUrl && (
+                  <img
+                    src={friend.avatarUrl}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                    class="friend-avatar"
+                    onerror="this.hidden = true"
+                  />
+                )}
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">站点</p>
+                <h2 class="mt-1 text-2xl font-semibold tracking-tight text-[var(--foreground)]">{friend.name}</h2>
+                <p class="mt-3 text-sm leading-7 text-[var(--muted)]">{friend.description}</p>
+              </div>
+            </div>
+
+            <blockquote class="friend-note-quote">
+              <span>阿巫：</span>
+              <p>{friend.note}</p>
+            </blockquote>
+
+            <div class="friend-card-foot">
+              <span class="friend-url-text">{formatUrlLabel(friend.url)}</span>
+              <span class="friend-open-text">点击卡片访问</span>
+            </div>
+          </a>
+        ))}
+      </section>
+    ) : (
+      <section class="surface-panel mt-8 rounded-[1.6rem] p-6 sm:p-8">
+        <p class="text-xs uppercase tracking-[0.3em] text-[var(--muted)]">Empty List</p>
+        <h2 class="mt-3 text-2xl font-semibold text-[var(--foreground)]">要串的门太多，迷路了，先逛逛我的网站吧。</h2>
+        <p class="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)]">
+          要串的门太多，迷路了，先逛逛我的网站吧。
+        </p>
+      </section>
+    )
+  }
+</BaseLayout>
