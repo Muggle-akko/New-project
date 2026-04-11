@@ -52,7 +52,7 @@ const yearLinks = timeTreeEntries
 const firstEntry = timeTreeEntries[0];
 ---
 
-<section class="mt-8 space-y-4" data-note-search>
+<section class="mt-8 space-y-4" data-note-search data-time-tree-ready="false">
   <div class="surface-panel search-panel rounded-[1.5rem] p-4 sm:p-5">
     <label for="note-search-input" class="search-label">搜索笔记</label>
     <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -352,6 +352,15 @@ const firstEntry = timeTreeEntries[0];
         window.addEventListener("scroll", requestTimeTreeUpdate, { passive: true });
         window.addEventListener("resize", requestTimeTreeUpdate);
         updateTimeTree();
+        window.requestAnimationFrame(() => {
+          updateTimeTree();
+          window.requestAnimationFrame(() => {
+            updateTimeTree();
+            container.dataset.timeTreeReady = "true";
+          });
+        });
+      } else {
+        container.dataset.timeTreeReady = "true";
       }
 
       const syncUrl = (query) => {
