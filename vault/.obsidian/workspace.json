@@ -1,0 +1,340 @@
+{
+  "main": {
+    "id": "2adb75722e0435c0",
+    "type": "split",
+    "children": [
+      {
+        "id": "34a94cc09ea04335",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e59c4c4d3948bf1d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "心情/2025/4月/深圳.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "深圳"
+            }
+          },
+          {
+            "id": "070a36dca175f7ec",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/写给自己的信/写给自己的信1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "写给自己的信1"
+            }
+          },
+          {
+            "id": "9cf73f20162f852f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/高中/朋友的诗歌（整理校对中）.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "朋友的诗歌（整理校对中）"
+            }
+          },
+          {
+            "id": "6fb9fde56c61227a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/高中/诗歌.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "诗歌"
+            }
+          },
+          {
+            "id": "5bbd9f9b6d3c0ebe",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/一篇脑洞大开的文章.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "一篇脑洞大开的文章"
+            }
+          },
+          {
+            "id": "a7d8cc8168d4bb1b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/关于“随机事件”的猜想.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "关于“随机事件”的猜想"
+            }
+          },
+          {
+            "id": "cb2ad4d48497a33b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/小说：意外.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "小说：意外"
+            }
+          },
+          {
+            "id": "f76becab54f5c1a3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/夜.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "夜"
+            }
+          },
+          {
+            "id": "8b3ab4fb73e24dcf",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/夜习奇遇.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "夜习奇遇"
+            }
+          },
+          {
+            "id": "0e1bd5c3534638ad",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "现实 vs 作文"
+            }
+          }
+        ],
+        "currentTab": 9
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a42873f4c840abc0",
+    "type": "split",
+    "children": [
+      {
+        "id": "a6d694c729b51708",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "65cb64ee03cfb9b9",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "55ce7d28d0bd8664",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "21890af3cc88fd69",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "0151db0e0030a21f",
+    "type": "split",
+    "children": [
+      {
+        "id": "a2b9fef2d7477f75",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1b10687dd77a54bd",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "现实 vs 作文 的反向链接列表"
+            }
+          },
+          {
+            "id": "0436d25a1a06b6d9",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "现实 vs 作文 的出链列表"
+            }
+          },
+          {
+            "id": "155530bdbbb66b6c",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "2598305a5cb52df5",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "c4ba336b9a2b28d6",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "现实 vs 作文 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "65cb64ee03cfb9b9",
+  "lastOpenFiles": [
+    "归档/初中/随笔/夜习奇遇.md",
+    "归档/初中/随笔/现实 vs 作文.md",
+    "归档/初中/随笔/夜.md",
+    "归档/初中/随笔/小说：意外.md",
+    "归档/初中/随笔/关于“随机事件”的猜想.md",
+    "归档/初中/随笔/一篇脑洞大开的文章.md",
+    "未命名",
+    "归档/高中/诗歌.md",
+    "归档/高中/朋友的诗歌（整理校对中）.md",
+    "归档/初中/随笔",
+    "归档/初中",
+    "归档/写给自己的信",
+    "归档/写给自己的信/写给自己的信1.md",
+    "心情/2026/4月/未命名.md",
+    "归档/高中",
+    "心情/2025/4月/深圳.md",
+    "心情/2025/10月/最近喜欢拿保温杯喝饮料.md",
+    "心情/2026/4月",
+    "心情/2026",
+    "心情/2025/未命名",
+    "心情/2024/城外来客.md",
+    "心情/2023/光棍节.md",
+    "心情/2023/别来一日.md",
+    "归档/写给自己的信/写给自己的信2.md"
+  ]
+}

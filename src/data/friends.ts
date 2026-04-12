@@ -22,4 +22,11 @@ export const friendLinks: FriendLink[] = [
     url: "https://qixiao.online",
     avatarUrl: "https://qixiao.online/images/site-bg.jpg",
   },
+  {
+    name: "钰de个人博客",
+    description: "无用之用，方为大用，欢迎你们常来逛逛",
+    note: "多多更新！",
+    url: "https://ayublogisok.netlify.app",
+    avatarUrl: "/images/yublog.png",
+  },
 ];
