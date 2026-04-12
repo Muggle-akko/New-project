@@ -8,147 +8,63 @@
         "type": "tabs",
         "children": [
           {
-            "id": "e59c4c4d3948bf1d",
+            "id": "0545462c03e60dbd",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "心情/2025/4月/深圳.md",
+                "file": "归档/初中/随笔/静夜思.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "深圳"
+              "title": "静夜思"
             }
           },
           {
-            "id": "070a36dca175f7ec",
+            "id": "193b521f7550dc50",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "归档/写给自己的信/写给自己的信1.md",
+                "file": "归档/初中/随笔/春雨.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "写给自己的信1"
+              "title": "春雨"
             }
           },
           {
-            "id": "9cf73f20162f852f",
+            "id": "a0bcc3ae6544c9a6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "归档/高中/朋友的诗歌（整理校对中）.md",
+                "file": "归档/初中/随笔/心碎的愤怒.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "朋友的诗歌（整理校对中）"
+              "title": "心碎的愤怒"
             }
           },
           {
-            "id": "6fb9fde56c61227a",
+            "id": "f576fcc3ed3c0469",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "归档/高中/诗歌.md",
+                "file": "归档/初中/随笔/心碎的愤怒.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "诗歌"
-            }
-          },
-          {
-            "id": "5bbd9f9b6d3c0ebe",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/一篇脑洞大开的文章.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "一篇脑洞大开的文章"
-            }
-          },
-          {
-            "id": "a7d8cc8168d4bb1b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/关于“随机事件”的猜想.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "关于“随机事件”的猜想"
-            }
-          },
-          {
-            "id": "cb2ad4d48497a33b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/小说：意外.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "小说：意外"
-            }
-          },
-          {
-            "id": "f76becab54f5c1a3",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/夜.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "夜"
-            }
-          },
-          {
-            "id": "8b3ab4fb73e24dcf",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/夜习奇遇.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "夜习奇遇"
-            }
-          },
-          {
-            "id": "0e1bd5c3534638ad",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "归档/初中/随笔/现实 vs 作文.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "现实 vs 作文"
+              "title": "心碎的愤怒"
             }
           }
         ],
-        "currentTab": 9
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -221,7 +137,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "file": "归档/初中/随笔/心碎的愤怒.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -231,7 +147,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "现实 vs 作文 的反向链接列表"
+              "title": "心碎的愤怒 的反向链接列表"
             }
           },
           {
@@ -240,12 +156,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "file": "归档/初中/随笔/心碎的愤怒.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "现实 vs 作文 的出链列表"
+              "title": "心碎的愤怒 的出链列表"
             }
           },
           {
@@ -283,13 +199,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "归档/初中/随笔/现实 vs 作文.md",
+                "file": "归档/初中/随笔/心碎的愤怒.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "现实 vs 作文 的大纲"
+              "title": "心碎的愤怒 的大纲"
             }
           }
         ]
@@ -312,29 +228,39 @@
   },
   "active": "65cb64ee03cfb9b9",
   "lastOpenFiles": [
-    "归档/初中/随笔/夜习奇遇.md",
+    "归档/初中/随笔/无题.md",
+    "归档/初中/随笔/心碎的愤怒.md",
+    "归档/初中/随笔/春雨.md",
+    "归档/初中/随笔/静夜思.md",
+    "归档/初中/随笔/十块钱.md",
+    "归档/初中/随笔/多重人格的我.md",
+    "归档/初中/随笔/误会.md",
+    "归档/初中/随笔/诵史随词.md",
+    "归档/初中/随笔/黑白的圣诞节.md",
+    "归档/初中/随笔/一篇没有灵感的文章.md",
+    "归档/初中/随笔/《小王子》书评.md",
+    "归档/初中/随笔/新订鬼.md",
+    "归档/初中/随笔/龙.md",
+    "归档/初中/随笔/关于写作的烦恼.md",
     "归档/初中/随笔/现实 vs 作文.md",
+    "归档/初中/随笔/夜习奇遇.md",
     "归档/初中/随笔/夜.md",
-    "归档/初中/随笔/小说：意外.md",
+    "归档/初中/随笔/意外.md",
     "归档/初中/随笔/关于“随机事件”的猜想.md",
     "归档/初中/随笔/一篇脑洞大开的文章.md",
-    "未命名",
     "归档/高中/诗歌.md",
     "归档/高中/朋友的诗歌（整理校对中）.md",
+    "归档/写给自己的信/写给自己的信1.md",
+    "心情/2025/4月/深圳.md",
+    "归档/初中/随笔/校运会.md",
+    "未命名",
+    "诗歌/饱满的小腹变得干瘪.md",
     "归档/初中/随笔",
     "归档/初中",
     "归档/写给自己的信",
-    "归档/写给自己的信/写给自己的信1.md",
-    "心情/2026/4月/未命名.md",
     "归档/高中",
-    "心情/2025/4月/深圳.md",
-    "心情/2025/10月/最近喜欢拿保温杯喝饮料.md",
     "心情/2026/4月",
     "心情/2026",
-    "心情/2025/未命名",
-    "心情/2024/城外来客.md",
-    "心情/2023/光棍节.md",
-    "心情/2023/别来一日.md",
-    "归档/写给自己的信/写给自己的信2.md"
+    "心情/2025/未命名"
   ]
 }
